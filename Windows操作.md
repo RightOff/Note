@@ -184,3 +184,17 @@ git merge	//改变本地数据
 ```
 git clone 地址
 ```
+
+## VScode中配置git
+
+![1701583791620](image/Windows操作/1701583791620.png)
+
+![1701583797723](image/Windows操作/1701583797723.png)
+
+将安装目录下cmd/git.exe的路径写入
+
+![1701583815691](image/Windows操作/1701583815691.png)
+
+重启VScode后查看以下内容表示正确安装。
+
+![1701583871033](image/Windows操作/1701583871033.png)
