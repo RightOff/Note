@@ -50,6 +50,18 @@ $$
 
 最后把“.txt”修改为“.bat”执行该文件
 
+# 其他
+
+## 关闭Windows自动更新
+
+永久关闭（关闭10年）。
+
+打开cmd，输入以下命令即可
+
+```
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v FlightSettingsMaxPauseDays /t reg_dword /d 3000 /f
+```
+
 # Git
 
 ## Git Bash安装
