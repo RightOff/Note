@@ -214,3 +214,61 @@ git clone 地址
 在提交的时候填写一下提交信息。
 
 ![1701584139619](image/Windows操作/1701584139619.png)
+
+# Vue安装(实验室网页)
+
+1.进入官网下载Node.js
+
+官网：[https://nodejs.org/zh-cn/download/](https://nodejs.org/zh-cn/download/ "https://nodejs.org/zh-cn/download/") ，版本：node-v18.18.0-x64
+
+安装地址自己设，其他全默认。
+
+2.检查是否安装成功，在命令行输入：
+
+```
+node -v
+npm -v
+```
+
+3.安装淘宝的镜像加速：
+
+```
+npm install cnpm@7.1.0 -g --registry=https://registry.npm.taobao.org
+```
+
+4.安装vue-cli
+
+```
+cnpm install vue-cli -g
+```
+
+5.打开项目文件，修改package.json文件
+
+添加 `SET NODE_OPTIONS=--openssl-legacy-provider &&`，修改后如下：
+
+```
+  "scripts": {
+    "serve": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "build": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
+    "lint": "SET NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
+  },
+```
+
+6.卸载当前版本的 `node-sass`和 `sass-loader`。
+
+因为版本和当前的不兼容，安装对应版本的包即可。
+
+```
+#卸载node-sas和sass-loader
+cnpm uninstall node-sass
+cnpm uninstall sass-loader
+```
+
+7.运行
+
+```
+npm run server
+```
+
+
+xftp7安装
