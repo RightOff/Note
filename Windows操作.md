@@ -271,4 +271,4 @@ npm run server
 ```
 
 
-xftp7安装
+xftp7安装、配置
