@@ -111,6 +111,7 @@ Enter same passphrase again:
 Your identification has been saved in /c/Users/…/.ssh/id_rsa
 Your public key has been saved in /c/Users/…/.ssh/id_rsa.pub
 //3.表明已经设置好了
+//有个输入地方需要输入yes
 ```
 
 打开github
