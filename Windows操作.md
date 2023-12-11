@@ -111,6 +111,7 @@ Enter same passphrase again:
 Your identification has been saved in /c/Users/…/.ssh/id_rsa
 Your public key has been saved in /c/Users/…/.ssh/id_rsa.pub
 //3.表明已经设置好了
+//有个输入地方需要输入yes
 ```
 
 打开github
@@ -137,7 +138,7 @@ Hi “用户名”! You’ve successfully authenticated, but GitHub does not pro
 
 ```
 git init
-git remote add + 仓库名字 + 连接地址  //连接远程仓库，例如：git remote add Cplus_Study git@github.com:RightOff/Cplus_Study.git
+git remote add + 仓库名字 + 连接地址  //连接远程仓库，写远程仓库名和地址，例如：git remote add Cplus_Study git@github.com:RightOff/Cplus_Study.git
 
 git remote -v	//查看是否添加成功，输出结果如下  //Cplus_Study     git@github.com:RightOff/Cplus_Study.git (fetch)//Cplus_Study    git@github.com:RightOff/Cplus_Study.git (push)
 git remote remove + 仓库名字	//删除连接
@@ -269,6 +270,5 @@ cnpm uninstall sass-loader
 ```
 npm run server
 ```
-
 
 xftp7安装、配置
