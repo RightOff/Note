@@ -86,15 +86,11 @@ sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 lxc stop --all //关闭所有容器
 ```
 
-
-
-
 ## 安装步骤
 
 ### 系统文件制作
 
 共享云盘中下载Ubuntu-20.04.5-desktop-amd64.iso镜像文件，下载Rufus软件，在其上边进行系统盘的制作。
-
 
 ### SSH
 
@@ -814,6 +810,32 @@ pip install onnx	# 虚拟环境下安装
 ```
 
 在YOLOv5的models下
+
+## rtdetr
+
+修改v8的文件内容
+
+1. 在ultralytics/engine/trainer.py中的optimizer_step函数中的torch.nn.utils.clip_grad_norm_中的参数max_norm修改为0.1
+2. 在ultralytics/engine/trainer.py中的_setup_train函数中将self.args.nbs等于self.batch_size,这样做的目的是让模型不需要积累梯度再进行更新参数
+3. ultralytics/cfg/default.yaml配置文件的更改
+
+
+
+# 问题解决
+
+## 创建环境时连接超时
+
+错误信息：
+
+```
+CondaHTTPError: HTTP 000 CONNECTION FAILED for url
+```
+
+输入 `conda --help `找到.condarc文件路径，如下图：
+
+![1702907586256](image/Linux/1702907586256.png)
+
+打开文件然后修改里边的https为http，并在末尾加上：`ssl_verify: false`，即可。
 
 # Linux命令大全
 

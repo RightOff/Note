@@ -62,6 +62,13 @@ $$
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v FlightSettingsMaxPauseDays /t reg_dword /d 3000 /f
 ```
 
+## 组策略没有权限打开
+
+删除machine中的两个文件
+
+![1702955922697](image/Windows操作/1702955922697.png)
+
+
 # Git
 
 ## Git Bash安装
@@ -274,7 +281,6 @@ npm run server
 xftp7安装、配置
 
 测试
-
 
 # 移动文件夹时显示文件被占用
 
