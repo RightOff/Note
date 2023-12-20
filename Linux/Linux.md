@@ -813,6 +813,22 @@ pip install onnx	# 虚拟环境下安装
 
 ## rtdetr
 
+按照yolov8安装完pytorch，再进行以下操作
+
+```
+//额外需要的包安装命令:
+pip install timm thop efficientnet_pytorch einops grad-cam dill -i https://pypi.tuna.tsinghua.edu.cn/simple
+//以下主要是使用dyhead必定需要安装的包,如果安装不成功dyhead没办法正常使用!
+pip install -U openmim
+mim install mmengine
+mim install "mmcv>=2.0.0"
+
+//还需要安装的包
+pip install seaborn
+pip install seaborn
+```
+
+
 修改v8的文件内容
 
 1. 在ultralytics/engine/trainer.py中的optimizer_step函数中的torch.nn.utils.clip_grad_norm_中的参数max_norm修改为0.1

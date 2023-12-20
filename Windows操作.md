@@ -68,6 +68,17 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v Fli
 
 ![1702955922697](image/Windows操作/1702955922697.png)
 
+## win11看B站很卡
+
+考虑到题主其他视频网站都不卡，唯有B站卡，猜测是B站近期大力推行HEVC视频编码标准有关，解决方法如下：
+
+1.进入网页版B站，播放任意视频
+
+2.点击右下角设置-更多播放设置
+
+3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
+
+
 
 # Git
 
