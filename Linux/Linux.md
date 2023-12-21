@@ -828,14 +828,11 @@ pip install seaborn
 pip install seaborn
 ```
 
-
 修改v8的文件内容
 
 1. 在ultralytics/engine/trainer.py中的optimizer_step函数中的torch.nn.utils.clip_grad_norm_中的参数max_norm修改为0.1
 2. 在ultralytics/engine/trainer.py中的_setup_train函数中将self.args.nbs等于self.batch_size,这样做的目的是让模型不需要积累梯度再进行更新参数
 3. ultralytics/cfg/default.yaml配置文件的更改
-
-
 
 # 问题解决
 
@@ -935,6 +932,11 @@ CondaHTTPError: HTTP 000 CONNECTION FAILED for url
   > done
   ```
 + 在vim下查找关键词：ESC+/
++ ```
+  //实时网速
+  apt install ifstat	//安装
+  ifstat	//打开
+  ```
 
 ## Anaconda
 
