@@ -850,6 +850,17 @@ CondaHTTPError: HTTP 000 CONNECTION FAILED for url
 
 打开文件然后修改里边的https为http，并在末尾加上：`ssl_verify: false`，即可。
 
+## root用户无法启动vscode
+
+```
+vi ~/.bashrc
+# 添加一行
+alias code='/usr/share/code/code . --no-sandbox --unity-launch'
+# 报存生效
+source ~/.bashrc
+```
+
+
 # Linux命令大全
 
 ## 基础命令

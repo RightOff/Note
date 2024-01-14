@@ -46,6 +46,35 @@ int *&rp = p;
 
 `&`说明rp是一个引用。`*`确定rp引用的类型是一个指针。
 
+## 关键字
+
+### explicit
+
+```
+#include <iostream>
+using namespace std;
+
+class Point {
+public:
+    int x, y;
+    Point(int x = 0, int y = 0)
+        : x(x), y(y) {}
+};
+
+void displayPoint(const Point& p) 
+{
+    cout << "(" << p.x << "," 
+         << p.y << ")" << endl;
+}
+
+int main()
+{
+    //如果构造函数不加explicit，发生隐式转换，输出(1,0)。 如果加上，则会报错：不存在从int转换到point的适当构造函数
+    displayPoint(1);
+    Point p = 1;
+}
+```
+
 # C++练手项目
 
 ## 实现string类
@@ -53,7 +82,6 @@ int *&rp = p;
 1.创建自定义命名空间
 
 2.确定基本框架
-
 
 > size_t 类型和 int 的不同：
 >
@@ -100,7 +128,6 @@ int *&rp = p;
 
 3.15.重载运算符+、-
 
-
 # 未解答的疑问
 
 ## C++primer书
@@ -117,3 +144,13 @@ while (it != v1.end())
 
 }
 ```
+
+
+
+## 自定义命名空间
+
+### 重定义错误
+
+在其中写类没问题，但在其中写函数基本都会报重定义错误，如下图。除非在每个函数前边加上inline修饰。为什么？
+
+![1704868904609](image/C++/1704868904609.png)
