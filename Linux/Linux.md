@@ -683,15 +683,14 @@ conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=10
 
 下载yolov7文件
 
-    [mirrors / WongKinYiu / yolov7 · GitCode](https://gitcode.net/mirrors/WongKinYiu/yolov7?utm_source=csdn_github_accelerator "mirrors / WongKinYiu / yolov7 ·  GitCode")
-
-    文件传到Linux的Desktop后解压
+[GitHub - WongKinYiu/yolov7: Implementation of paper - YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors](https://github.com/WongKinYiu/yolov7)
 
 创建虚拟环境
 
-    conda create -n yolov7 python==3.8
-
-    conda activate yolov7
+```
+conda create -n yolov7 python==3.8  
+conda activate yolov7
+```
 
 切换到v7文件夹下
 
@@ -701,15 +700,30 @@ conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=10
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-安装GPU版torch
+换源，安装GPU版torch
 
 ```
+conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+
+conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0
+//废弃
 pip install torch==1.8.1+cu101 torchvision==0.9.1+cu101 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 手动下载yolov7.pt文件放在v7文件夹下
 
 运行detect进行测试
+
+训练
+
+```
+//报错File "/root/anaconda3/envs/yolov7/lib/python3.8/site-packages/torch/serialization.py", line 762, in _legacy_load
+    magic_number = pickle_module.load(f, **pickle_load_args)
+_pickle.UnpicklingError: STACK_GLOBAL requires str
+
+//删除数据集文件中产生了.cache文件
+```
+
 
 ## yolov8
 
@@ -834,6 +848,174 @@ pip install seaborn
 2. 在ultralytics/engine/trainer.py中的_setup_train函数中将self.args.nbs等于self.batch_size,这样做的目的是让模型不需要积累梯度再进行更新参数
 3. ultralytics/cfg/default.yaml配置文件的更改
 
+
+## Faster-RCNN
+
+创建虚拟环境
+
+```
+conda create -n rcnn python=3.6
+```
+
+配置清华镜像源
+
+```
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge 
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/msys2/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
+ 
+# 设置搜索时显示通道地址
+conda config --set show_channel_urls yes
+```
+
+安装pytorch
+
+```
+conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0
+```
+
+下载faster-rcnn代码
+
+```
+https://github.com/jwyang/faster-rcnn.pytorch/tree/pytorch-1.0
+```
+
+代码包中创建文件
+
+```
+cd faster-rcnn.pytorch-pytorch-1.0 && mkdir data
+cd data && mkdir pretrained_model
+```
+
+下载预训练模型VGG16,放到/data/pretrained_model中
+
+```
+https://link.csdn.net/?target=https%3A%2F%2Ffilebox.ece.vt.edu%2F~jw2yang%2Ffaster-rcnn%2Fpretrained-base-models%2Fvgg16_caffe.pth
+```
+
+安装依赖
+
+```
+pip install -r requirements.txt 
+//报错Could not build wheels for opencv-python, which is required to install pyproj，解决如下
+pip install -i https://pypi.douban.com/simple/ pip install opencv-python==4.3.0.38
+```
+
+之后
+
+```
+cd lib
+python setup.py build develop
+```
+
+安装CoCO API
+
+```
+cd data
+git clone https://github.com/pdollar/coco.git
+cd coco/PythonAPI
+make
+cd ../../..
+```
+
+修改数据集/data/VOCdevkit2007
+
+修改类别，文件`lib/datasets/pascal_voc.py`
+
+![1705847432893](image/Linux/1705847432893.png)
+
+修改参数（可选），文件 `/lib/model/utils/config.py`
+
+cannot import name ‘imread’
+
+```
+//对应文件中修改from scipy.misc import imread为以下
+from imageio import imread
+```
+
+在/lib/model/utils/config.py中的374行
+
+```
+//yaml_cfg = edict(yaml.load(f))修改为
+yaml_cfg = edict(yaml.load(f, Loader=yaml.FullLoader))
+```
+
+ cannot import name 'builder’
+
+```
+pip uninstall protobuf
+pip install protobuf==4.21.0
+```
+
+File "/py-faster-rcnn/tools/../lib/datasets/imdb.py", line 108, in append_flipped_images
+    assert (boxes[:, 2] >= boxes[:, 0]).all() AssertionError
+
+```
+修改lib/datasets/imdb.py，append_flipped_images()函数
+数据整理，在一行代码为 boxes[:, 2] = widths[i] - oldx1 - 1下加入代码：
+for b in range(len(boxes)):
+  if boxes[b][2]< boxes[b][0]:
+    boxes[b][0] = 0
+
+修改lib/datasets/pascal_voc.py
+将对Xmin,Ymin,Xmax,Ymax减一去掉
+```
+
+
+
+制作数据集，使用voc格式数据集，txt_to_val、txt_to_val2为转换代码
+
+data/VOCdevkit2007/VOC2007文件下
+
+| Annotations | 存放数据打标签后的xml文件    |
+| ----------- | ---------------------------- |
+| Main        | 存放图片的名字和正负样本标签 |
+| JPEGImages  | 存放图片                     |
+
+在Main中有四种txt文件
+
+trainval	存放全部的训练集和验证集图片的名字，不要带后缀，比如图片是0.jpg，就写0就行了
+train	存放全部的训练集图片名字，占trainval的50%
+val	存放全部的验证集图片名字，占trainval的50%
+test	存放全部的测试集图片名字
+
+
+训练loss可视化
+
+```
+pip install tensorboard
+//报版本不匹配
+pip uninstall protobuf
+pip install protobuf==3.9.2
+
+tensorboard --logdir=logs/logs_s_1/losses/ --port=7001
+```
+
+训练开始前
+
+```
+删除缓存：将faster-rcnn.pytorch/data/cache文件夹里面的东西全删掉
+删除模型：将faster-rcnn.pytorch/models/res101/pascal_voc文件夹里面的东西全删掉
+```
+
+训练
+
+```
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py  --dataset pascal_voc --net vgg16 --bs 16 --nw 16 --lr 0.001 --lr_decay_step 5 --cuda --use_tfb  --epochs 100
+```
+
+测试
+
+修改文件test_net.py中的test为val
+
+```
+python test_net.py --dataset pascal_voc --net vgg16 --checksession 1 --checkepoch 1 --checkpoint 473 --cuda
+//473为文件编号
+```
+
+
+
 # 问题解决
 
 ## 创建环境时连接超时
@@ -859,7 +1041,6 @@ alias code='/usr/share/code/code . --no-sandbox --unity-launch'
 # 报存生效
 source ~/.bashrc
 ```
-
 
 # Linux命令大全
 
