@@ -78,8 +78,6 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v Fli
 
 3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
 
-
-
 # Git
 
 ## Git Bash安装
@@ -233,6 +231,44 @@ git clone 地址
 在提交的时候填写一下提交信息。
 
 ![1701584139619](image/Windows操作/1701584139619.png)
+
+## 报错
+
+### port 22: Connection timed out
+
+详细信息：ssh:connect to host github.com port 22: Connection timed out
+
+```
+//进入~/.ssh下
+cd ~/.ssh
+
+//创建一个config文件
+vim config
+```
+
+编辑文件内容
+
+```
+Host github.com
+User git
+Hostname ssh.github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+Port 443
+
+Host gitlab.com
+Hostname altssh.gitlab.com
+User git
+Port 443
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+```
+
+检查是否成功
+
+```
+ssh -T git@github.com	//之后按提示输入yes
+```
 
 # Vue安装(实验室网页)
 

@@ -1044,10 +1044,10 @@ python3 setup.py install
 python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.jpg --conf 0.25 --nms 0.45 --tsize 640 --save_result --device gpu
 ```
 
-### 训练
+### 训练tiny
 
 1. 修改类别标签。改为自己数据集类别标签。yolox/data/datasets/voc_classes.py中的标签信息，进行修改。
-2. 修改类别数量。改为自己数据集类别数量。exps/example/yolox_voc/yolox_voc_tiny.py。（依据yolox_voc_s.py复制出yolox_voc_tiny.py）
+2. 修改类别数量。改为自己数据集类别数量。exps/example/yolox_voc/yolox_voc_s.py。
 
    ```
    class Exp(MyExp):
@@ -1055,7 +1055,7 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
            super(Exp, self).__init__()
            self.num_classes = 10 #修改类别数目
            self.depth = 0.33
-           self.width = 0.50
+           self.width = 0.375    #修改网络为tiny大小
            self.warmup_epochs = 1
    ```
 
@@ -1073,7 +1073,9 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
                    cache=cache_img,
                )
    ```
-3. ~~修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。~~
+3. 修改exps/default/yolox_s.py中的，self.depth和self.width，与上边保持一致。
+4. 修改yolox/exp/yolox_base.py中的，self.depth和self.width，与上边保持一致。
+5. ~~修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。~~
 
    ```
    #修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。
@@ -1082,17 +1084,18 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
        """ Parse a PASCAL VOC xml file """
        tree = ET.parse(root + filename)
    ```
-4. 注意数据集文件结构转换，其并非是严格的VOC格式，Main中只有trainval.txt和test.txt。
+6. 注意数据集文件结构转换，其并非是严格的VOC格式，Main中只有trainval.txt和test.txt。
 
    ![1706267473279](https://file+.vscode-resource.vscode-cdn.net/d%3A/code/%E7%AC%94%E8%AE%B0/Linux/image/Linux/1706267473279.png)
+7. yolox/exp/yolox_base.py设置超参
 
 开始训练
 
 ```
-python tools/train.py -f exps/example/yolox_voc/yolox_voc_tiny.py -d 0 -b 32 --fp16  -c yolox_tiny.pth
+python tools/train.py -f exps/example/yolox_voc/yolox_voc_s.py -d 0 -b 32 --fp16  -c yolox_tiny.pth
 ```
 
-### 测试
+### 测试（未验证）
 
 1. 在yolox/data/datasets/下的init.py添加
 
