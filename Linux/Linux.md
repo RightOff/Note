@@ -1047,7 +1047,7 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
 ### 训练
 
 1. 修改类别标签。改为自己数据集类别标签。yolox/data/datasets/voc_classes.py中的标签信息，进行修改。
-2. 修改类别数量。改为自己数据集类别数量。exps/example/yolox_voc/yolox_voc_s.py
+2. 修改类别数量。改为自己数据集类别数量。exps/example/yolox_voc/yolox_voc_tiny.py。（依据yolox_voc_s.py复制出yolox_voc_tiny.py）
 
    ```
    class Exp(MyExp):
@@ -1073,7 +1073,7 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
                    cache=cache_img,
                )
    ```
-3. 修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。
+3. ~~修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。~~
 
    ```
    #修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。
