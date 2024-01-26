@@ -723,7 +723,6 @@ _pickle.UnpicklingError: STACK_GLOBAL requires str
 //删除数据集文件中产生了.cache文件
 ```
 
-
 ## yolov8
 
 ### 安装
@@ -847,7 +846,6 @@ pip install seaborn
 2. 在ultralytics/engine/trainer.py中的_setup_train函数中将self.args.nbs等于self.batch_size,这样做的目的是让模型不需要积累梯度再进行更新参数
 3. ultralytics/cfg/default.yaml配置文件的更改
 
-
 ## Faster-RCNN
 
 创建虚拟环境
@@ -920,7 +918,7 @@ cd ../../..
 
 修改数据集/data/VOCdevkit2007
 
-修改类别，文件`lib/datasets/pascal_voc.py`
+修改类别，文件 `lib/datasets/pascal_voc.py`
 
 ![1705847432893](image/Linux/1705847432893.png)
 
@@ -961,8 +959,6 @@ for b in range(len(boxes)):
 将对Xmin,Ymin,Xmax,Ymax减一去掉
 ```
 
-
-
 制作数据集，使用voc格式数据集，txt_to_val、txt_to_val2为转换代码
 
 data/VOCdevkit2007/VOC2007文件下
@@ -978,7 +974,6 @@ trainval	存放全部的训练集和验证集图片的名字，不要带后缀�
 train	存放全部的训练集图片名字，占trainval的50%
 val	存放全部的验证集图片名字，占trainval的50%
 test	存放全部的测试集图片名字
-
 
 训练loss可视化
 
@@ -1013,7 +1008,115 @@ python test_net.py --dataset pascal_voc --net vgg16 --checksession 1 --checkepoc
 //473为文件编号
 ```
 
+## YOLOX
 
+用yolov5环境
+
+### 安装依赖包
+
+```
+pip3 install -U pip && pip3 install -r requirements.txt
+python3 setup.py develop
+```
+
+### 安装pycocotools
+
+```
+pip3 install cython; pip3 install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+
+//出现错误如下错误可以忽略。ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+yolox 0.3.0 requires pycocotools>=2.0.2, but you have pycocotools 2.0 which is incompatible.
+```
+
+### 安装apex文件
+
+```
+git clone https://github.com/NVIDIA/apex
+cd apex
+python3 setup.py install
+```
+
+### demo测试
+
+下载权重文件后
+
+```
+python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.jpg --conf 0.25 --nms 0.45 --tsize 640 --save_result --device gpu
+```
+
+### 训练
+
+1. 修改类别标签。改为自己数据集类别标签。yolox/data/datasets/voc_classes.py中的标签信息，进行修改。
+2. 修改类别数量。改为自己数据集类别数量。exps/example/yolox_voc/yolox_voc_s.py
+
+   ```
+   class Exp(MyExp):
+       def __init__(self):
+           super(Exp, self).__init__()
+           self.num_classes = 10 #修改类别数目
+           self.depth = 0.33
+           self.width = 0.50
+           self.warmup_epochs = 1
+   ```
+
+   ```
+           with wait_for_the_master(local_rank):
+               dataset = VOCDetection(
+                   data_dir=os.path.join(get_yolox_datadir(), "VOCdevkit"),
+                   //修改这里
+                   image_sets=[('2007', 'trainval')],#, ('2012', 'trainval')
+                   img_size=self.input_size,
+                   preproc=TrainTransform(
+                       max_labels=50,
+                       flip_prob=self.flip_prob,
+                       hsv_prob=self.hsv_prob),
+                   cache=cache_img,
+               )
+   ```
+3. 修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。
+
+   ```
+   #修改yolox/evaluators/voc_eval.py，添加root为annotation的绝对路径。
+   root = r'E:\YOLOX-main\datasets\VOCdevkit\VOC2007\Annotations\\'
+   def parse_rec(filename):
+       """ Parse a PASCAL VOC xml file """
+       tree = ET.parse(root + filename)
+   ```
+4. 注意数据集文件结构转换，其并非是严格的VOC格式，Main中只有trainval.txt和test.txt。
+
+   ![1706267473279](https://file+.vscode-resource.vscode-cdn.net/d%3A/code/%E7%AC%94%E8%AE%B0/Linux/image/Linux/1706267473279.png)
+
+开始训练
+
+```
+python tools/train.py -f exps/example/yolox_voc/yolox_voc_tiny.py -d 0 -b 32 --fp16  -c yolox_tiny.pth
+```
+
+### 测试
+
+1. 在yolox/data/datasets/下的init.py添加
+
+   ```
+   from .voc_classes import VOC_CLASSES
+   ```
+2. 在tools/demo.py中导入
+
+   ![1706268510594](https://file+.vscode-resource.vscode-cdn.net/d%3A/code/%E7%AC%94%E8%AE%B0/Linux/image/Linux/1706268510594.png)
+3. 并将该文件夹下的其他COCO_CLASSES全部修改为VOC_CLASSE
+
+   ![1706268545892](https://file+.vscode-resource.vscode-cdn.net/d%3A/code/%E7%AC%94%E8%AE%B0/Linux/image/Linux/1706268545892.png)
+4. 修改exps/default/yolox_s.py文件，修改类别数（本次应该修改为2)
+
+   ![1706268609383](https://file+.vscode-resource.vscode-cdn.net/d%3A/code/%E7%AC%94%E8%AE%B0/Linux/image/Linux/1706268609383.png)
+
+运行测试
+
+```
+python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_tiny.py -c YOLOX_outputs/yolox_voc_tiny/best_ckpt.pth --path assets/class01.jpg --conf 0.25 --nms 0.45 --tsize 640 --save_result --device [cpu/gpu]
+//-c 代表训练好的权重，-path 代表你要预测的图片存放的文件夹，
+//若想进行视频预测，只需将下面的 image 更换为 video；
+//若想预测整个文件夹，将.jpg去掉，只留 --path assets/
+```
 
 # 问题解决
 
@@ -1122,7 +1225,7 @@ source ~/.bashrc
   > unzip -o $i
   > done
   ```
-+ 在vim下查找关键词：ESC+/
++ 在vim下查找关键词：ESC+/，回车后按n向下查找、按N向上查找
 + ```
   //实时网速
   apt install ifstat	//安装
