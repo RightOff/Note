@@ -571,6 +571,79 @@ pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 (voice) root@clh1:/git/VoiceprintRecognition-Pytorch# pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
+## yolov4(放弃)
+
+### 配置
+
+#### 源码下载
+
+```
+git clone https://github.com/Tianxiaomo/pytorch-YOLOv4.git
+cd pytorch-YOLOv4
+```
+
+#### 下载权重文件
+
+yolov4.pth
+
+[https://drive.google.com/open?id=1wv_LiFeCRYwtpkqREPeI13-gPELBDwuJ](https://drive.google.com/open?id=1wv_LiFeCRYwtpkqREPeI13-gPELBDwuJ)
+
+安装依赖包
+
+```
+pip install -r requirements.txt
+```
+
+打开demo.py，找到如下内容，将false修改为False
+
+```
+parser.add_argument('-torch', type=bool, default=false,
+                    help='use torch weights')
+```
+
+报错：Overload resolution failed: .......
+
+```
+pip show opencv_python #展示自己opencv_python的版本
+pip uninstall opencv-python #卸载之前的版本
+pip install opencv_python==4.4.0.46 #下载4.4.0.46这个版本
+```
+
+运行demo
+
+```
+python demo.py -cfgfile ./cfg/yolov4.cfg -weightfile ./weight/yolov4.weights -imgfile ./data/dog.jpg
+```
+
+### 训练
+
+cfg.py文件中配置参数
+
+![1706279638896](image/Linux/1706279638896.png)
+
+protobuf版本过高
+
+```
+pip uninstall protobuf
+pip install protobuf==3.19.0
+```
+
+AttributeError: module ‘numpy‘ has no attribute ‘float‘.
+
+```
+pip install numpy==1.23.5
+```
+
+
+开始训练
+
+```
+python train.py -l 0.001 -g 0 -pretrained ./weight/yolov4.pth -classes 2 -dir ./mydata/JPEGImages/ -train_label_path mydata/train.txt
+```
+
+-l：学习率。-g ：gpu id。-pretrained  ：预训练权值。-classes  ：类别种类。-dir ：图片所在文件夹。
+
+
 ## yolov5
 
 下载yolov5-5.0文件
@@ -999,6 +1072,18 @@ tensorboard --logdir=logs/logs_s_1/losses/ --port=7001
 CUDA_VISIBLE_DEVICES=0 python trainval_net.py  --dataset pascal_voc --net vgg16 --bs 16 --nw 16 --lr 0.001 --lr_decay_step 5 --cuda --use_tfb  --epochs 100
 ```
 
+```
+//跑论文的基准模型时用的是这个
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py  --dataset pascal_voc --net vgg16 --bs 16 --nw 16 --cuda --epochs 100
+```
+
+从断点开始继续训练方法：
+例如我训练好的模型名为faster_rcnn_1_9_9547.pth，它就对应了 checksession 为1 ，checkepoch为 9，checkpoint为 9547
+
+```
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py --dataset pascal_voc --net vgg16 --bs 16 --nw 16  --cuda --r true --checksession 1 --checkepoch 100 --checkpoint 387 --epochs 100
+```
+
 测试
 
 修改文件test_net.py中的test为val
@@ -1008,7 +1093,7 @@ python test_net.py --dataset pascal_voc --net vgg16 --checksession 1 --checkepoc
 //473为文件编号
 ```
 
-## YOLOX
+## YOLOX(可以运行，但训练精度有问题—太低)
 
 用yolov5环境
 
@@ -1053,7 +1138,7 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
    class Exp(MyExp):
        def __init__(self):
            super(Exp, self).__init__()
-           self.num_classes = 10 #修改类别数目
+           self.num_classes = 2 #修改类别数目
            self.depth = 0.33
            self.width = 0.375    #修改网络为tiny大小
            self.warmup_epochs = 1
@@ -1092,7 +1177,7 @@ python tools/demo.py image -n yolox-tiny -c ./yolox_tiny.pth --path assets/dog.j
 开始训练
 
 ```
-python tools/train.py -f exps/example/yolox_voc/yolox_voc_s.py -d 0 -b 32 --fp16  -c yolox_tiny.pth
+python tools/train.py -f exps/example/yolox_voc/yolox_voc_s.py -d 0 -b 32 --fp16  -c yolox_s.pth
 ```
 
 ### 测试（未验证）
@@ -1115,11 +1200,12 @@ python tools/train.py -f exps/example/yolox_voc/yolox_voc_s.py -d 0 -b 32 --fp16
 运行测试
 
 ```
-python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_tiny.py -c YOLOX_outputs/yolox_voc_tiny/best_ckpt.pth --path assets/class01.jpg --conf 0.25 --nms 0.45 --tsize 640 --save_result --device [cpu/gpu]
+python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_s.py -c YOLOX_outputs/yolox_voc_s_tiny/best_ckpt.pth --path assets/1.jpg --conf 0.25 --nms 0.45 --tsize 640 --save_result --device 0
+```
+
 //-c 代表训练好的权重，-path 代表你要预测的图片存放的文件夹，
 //若想进行视频预测，只需将下面的 image 更换为 video；
 //若想预测整个文件夹，将.jpg去掉，只留 --path assets/
-```
 
 # 问题解决
 
@@ -1228,11 +1314,14 @@ source ~/.bashrc
   > unzip -o $i
   > done
   ```
-+ 在vim下查找关键词：ESC+/，回车后按n向下查找、按N向上查找
++ 在vim下查找关键词：ESC+/，回车后按n向下查找、按N向上查找。按u撤销上一个操作
 + ```
   //实时网速
   apt install ifstat	//安装
   ifstat	//打开
+  ```
++ ```
+  conda create -n 新环境名 --clone 旧环境名   //复制虚拟环境
   ```
 
 ## Anaconda
