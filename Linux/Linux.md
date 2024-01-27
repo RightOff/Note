@@ -1207,6 +1207,41 @@ python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_s.py -c YOLOX_out
 //若想进行视频预测，只需将下面的 image 更换为 video；
 //若想预测整个文件夹，将.jpg去掉，只留 --path assets/
 
+
+## mmdetection
+
+创建虚拟环境
+
+```
+conda create --name openmmlab python=3.8 -y
+conda activate oenmmlab
+```
+
+换国内源：
+
+```
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+//ps:清空源
+conda config --remove-key channels
+```
+
+安装pytorch：
+
+```
+conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+```
+
+安装mmdet
+
+```
+pip install -U openmim
+mim install mmcv-full
+```
+
+安装 MMDetection
+
+
+
 # 问题解决
 
 ## 创建环境时连接超时
