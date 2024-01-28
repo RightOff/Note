@@ -536,6 +536,15 @@ sudo lxc config device add tf proxy0 proxy listen=tcp:192.168.31.234:1003 connec
 sudo lxc config device set tf proxy1 listen=tcp:新监听地址
 ```
 
+添加共享文件夹
+
+添加GPU硬件
+在宿主机中执行以下命令
+
+```
+lxc config device add tf gpu gpu
+```
+
 ### 容器的虚拟环境中安装pytorch
 
 略
