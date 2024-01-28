@@ -1,6 +1,8 @@
 # Ubuntu20.04安装
 
-## 报错：ERROR：Unable to find the development tool `cc` in your path
+## 报错合集
+
+### 报错：ERROR：Unable to find the development tool `cc` in your path
 
 先更新找到gcc，再下载
 
@@ -9,32 +11,24 @@ sudo apt-get update
 sudo apt-get install gcc
 ```
 
-## 报错：gpg: no valid OpenPGP data found.
+### 报错：gpg: no valid OpenPGP data found.
 
 ```
 wget https://download.docker.com/linux/ubuntu/gpg
 sudo apt-key add gpg
 ```
 
-## 报错：E: Unable to locate package libnvidia-container-dev E: Unable to locate package libnvidia-container-tools E: Unable to locate package nvidia-container-runtime
+### 报错：E: Unable to locate package libnvidia-container-dev E: Unable to locate package libnvidia-container-tools E: Unable to locate package nvidia-container-runtime
 
 ```
 sudo apt update
 ```
 
-## Failed to add partition 1 to system: Invalid argument
+### Failed to add partition 1 to system: Invalid argument
 
 创建分区的时候 通过命令来新建一份空的分区表：o
 
 ![1696494689251](image/Linux/1696494689251.png)
-
-## 右键没有从终端中打开的选项
-
-```
-sudo apt update
-sudo apt install nautilus-extension-gnome-terminal
-注销后重新登录即可
-```
 
 Firefox乱码
 
@@ -68,9 +62,7 @@ If the font still has no generic name, add sans-serif
 </fontconfig>
 ```
 
-## 报错合集
-
-### 异常重启后不能用cuda
+### 异常重启后（或其他情况）后不能用cuda
 
 ```
 # 给宿主机增加nvidia-uvm设备
@@ -80,10 +72,12 @@ sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 # 第三步可能会报错，不影响使用,上述命令执行完成之后，重启容器
 ```
 
-## 常用指令
+### E: Conflicting values set for option Signed-By regarding source
+
+删除一个文件，如下
 
 ```
-lxc stop --all //关闭所有容器
+/etc/apt/sources.list.d# rm nvidia-container-toolkit.list
 ```
 
 ## 安装步骤
@@ -91,6 +85,10 @@ lxc stop --all //关闭所有容器
 ### 系统文件制作
 
 共享云盘中下载Ubuntu-20.04.5-desktop-amd64.iso镜像文件，下载Rufus软件，在其上边进行系统盘的制作。
+
+### 取消自动锁屏
+
+setting->Power->Blank Screen->Never
 
 ### SSH
 
@@ -110,50 +108,6 @@ PasswordAuthentication yes
 service ssh start
 #开机自启动(默认)
 systemctlenable ssh
-```
-
-### 存储池
-
-查看存储池：
-
-```
-zpool list
-```
-
-初始化LXD
-
-```
-sudo lxd init
-```
-
-```
-Would you like to use LXD clustering? (yes/no) [default=no]: 
-Do you want to configure a new storage pool? (yes/no) [default=yes]: yes
-Name of the new storage pool [default=default]: rpool
-Name of the storage backend to use (ceph, btrfs, dir, lvm, zfs) [default=zfs]: zfs
-Would you like to create a new zfs dataset under rpool/lxd? (yes/no) [default=yes]: yes
-Would you like to connect to a MAAS server? (yes/no) [default=no]: 
-Would you like to create a new local network bridge? (yes/no) [default=yes]: 
-What should the new bridge be called? [default=lxdbr0]: lxdbr0
-What IPv4 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
-What IPv6 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
-Would you like the LXD server to be available over the network? (yes/no) [default=no]: 
-Would you like stale cached images to be updated automatically? (yes/no) [default=yes] 
-Would you like a YAML "lxd init" preseed to be printed? (yes/no) [default=no]: 
-```
-
-### 容器
-
-创建容器
-
-```
-lxc launch ubuntu:20.04 tf
-# 查看容器
-lxc list
-# 查看本机已有的镜像
-lxc image ls
-# 进入容器操作
-lxc exec tf bash
 ```
 
 ### 显卡驱动
@@ -223,11 +177,19 @@ nvidia-smi
 ### 安装cuda
 
 ```
+//下载cuda安装包
 wget https://developer.download.nvidia.com/compute/cuda/11.3.1/local_installers/cuda_11.3.1_465.19.01_linux.run
+```
+
+安装
+
+```
 sudo sh cuda_11.3.1_465.19.01_linux.run
 ```
 
-其中有个选择需要取消第一项再安装
+其中有个选择需要取消第一项再安装，如下图第一项
+
+![1706429679250](image/Linux/1706429679250.png)
 
 配置环境变量
 
@@ -244,7 +206,9 @@ source ~/.bashrc
 
 测试是否装好
 
+```
 nvcc -V
+```
 
 ### 安装cudnn
 
@@ -281,9 +245,70 @@ apt-get update
 apt install libnvidia-container-dev libnvidia-container-tools nvidia-container-runtime -y
 ```
 
+### LXD
+
+安装LXD、ZFS和Bridge-utils：
+
+```
+sudo apt-get install lxd zfsutils-linux bridge-utils
+```
+
+查看存储池：
+
+```
+sudo fdisk -l	//查看磁盘情况
+zpool list	//可选
+```
+
+初始化LXD
+
+```
+sudo lxd init
+```
+
+```
+Would you like to use LXD clustering? (yes/no) [default=no]: 
+Do you want to configure a new storage pool? (yes/no) [default=yes]: yes
+Name of the new storage pool [default=default]: rpool
+Name of the storage backend to use (ceph, btrfs, dir, lvm, zfs) [default=zfs]: zfs
+Create a new ZFS pool? (yes/no) [default=yes]: yes
+Would you like to use an existing empty block device (e.g. a disk or partition)? (yes/no) [default=no]:no
+Size in GiB of the new loop device (1GiB minimum) [default=30GiB]: 900GiB   //磁盘剩余最大空间
+剩下均默认即可
+
+//以下仅供参考（废弃）
+Would you like to create a new zfs dataset under rpool/lxd? (yes/no) [default=yes]: yes
+Would you like to connect to a MAAS server? (yes/no) [default=no]: 
+Would you like to create a new local network bridge? (yes/no) [default=yes]: 
+What should the new bridge be called? [default=lxdbr0]: lxdbr0
+What IPv4 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
+What IPv6 address should be used? (CIDR subnet notation, “auto” or “none”) [default=auto]: 
+Would you like the LXD server to be available over the network? (yes/no) [default=no]: 
+Would you like stale cached images to be updated automatically? (yes/no) [default=yes] 
+Would you like a YAML "lxd init" preseed to be printed? (yes/no) [default=no]: 
+```
+
+### 容器
+
+创建容器
+
+```
+# 创建容器
+lxc launch ubuntu:20.04 tf
+# 查看容器
+lxc list
+# 查看本机已有的镜像
+lxc image ls
+```
+
 ### 容器中安装驱动
 
 ```
+cd /   //进入根目录
+```
+
+```
+//添加共享文件夹
 mkdir share
 sudo lxc config set tf security.privileged true
 sudo lxc config device add tf share disk source=/share path=/share
@@ -360,51 +385,13 @@ passwd root
 vim /etc/ssh/sshd_config
 #PermitRootLogin without-password改为
 PermitRootLogin yes
+//PasswordAuthentication no改为
+PasswordAuthentication yes
 #重启ssh服务
 /etc/init.d/ssh restart
 ```
 
-### 桌面优化
-
-```
-# 安装 NetworkManager 服务
-sudo apt install network-manager
-# 安装完后重启（不重启也行，以下可以不用做）
-sudo reboot
-# 启动NetworkManager 服务
-sudo systemctl start NetworkManager
-# NetworkManager 在启动时自动运行
-sudo systemctl enable NetworkManager
-# 检查 NetworkManager 状态
-sudo systemctl status NetworkManager
-```
-
-```
-sudo apt update
-# 安装图标主题
-sudo apt install papirus-icon-theme
-# 安装GTK主题
-git clone https://github.com/vinceliuice/vimix-gtk-themes
-cd vimix-gtk-themes
-sudo ./install.sh
-# 安装Gnome Tweak Tool
-sudo apt install gnome-tweak-tool
-# 显示Linux系统信息工具
-sudo apt install neofetch
-# 查看CPU运行以及内存占用情况工具
-sudo apt install htop
-```
-
-然后打开tweaks，在里边进行设置
-
-```
-# 文件夹下右键中没有终端的解决方法：
-sudo apt update
-sudo apt install nautilus-extension-gnome-terminal
-注销后重新登录即可
-```
-
-### 安装anaconda
+### 宿主机中安装anaconda
 
 宿主机中
 
@@ -431,14 +418,103 @@ yes
 
 yes
 
-重新打开命令行
+重新进入命令行
 
 ```
+//以下选做（意义不大）
 # conda 的基础环境在启动时不被激活
 conda config --set auto_activate_base false
 # 创建python3.9的环境
 conda create -n lxdui python=3.9
 conda activate lxdui
+```
+
+### 容器中安装anaconda、cuda、cudnn
+
+准备工作
+
+```
+sudo apt-get install gcc
+sudo apt-get install make
+```
+
+接下来与宿主机安装相同
+
+安装结束-------------------------------------------------------------------------------
+
+### 容器优化
+
+#### 安装firefox
+
+```
+sudo apt update && sudo apt upgrade
+sudo apt install firefox
+```
+
+#### 桌面优化
+
+```
+# 安装 NetworkManager 服务
+sudo apt install network-manager
+# 安装完后重启（不重启也行，以下可以不用做）
+sudo reboot
+# 启动NetworkManager 服务
+sudo systemctl start NetworkManager
+# NetworkManager 在启动时自动运行
+sudo systemctl enable NetworkManager
+# 检查 NetworkManager 状态
+sudo systemctl status NetworkManager
+```
+
+安装tweaks
+
+```
+sudo apt install gnome-tweaks
+```
+
+然后重启洗头后打开tweaks，在里边进行设置。
+
+以下可以忽略==============
+
+```
+//某一特定主题桌面（可选）
+sudo apt update
+# 安装图标主题
+sudo apt install papirus-icon-theme
+# 安装GTK主题
+git clone https://github.com/vinceliuice/vimix-gtk-themes
+cd vimix-gtk-themes
+sudo ./install.sh
+# 安装Gnome Tweak Tool
+sudo apt install gnome-tweak-tool
+# 显示Linux系统信息工具
+sudo apt install neofetch
+# 查看CPU运行以及内存占用情况工具
+sudo apt install htop
+```
+
+```
+# 文件夹下右键中没有终端的解决方法：
+sudo apt update
+sudo apt install nautilus-extension-gnome-terminal
+注销后重新登录即可
+```
+
+#### 开启从终端中打开的选项
+
+```
+sudo apt update
+sudo apt install nautilus-extension-gnome-terminal
+注销后重新登录即可
+```
+
+#### 最小最大化按钮
+
+```
+# 切换到右上角
+gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
+# 切换到左上角
+gsettings set org.gnome.desktop.wm.preferences button-layout "minimize,maximize,close:"
 ```
 
 ### 用镜像创建容器
@@ -460,13 +536,22 @@ sudo lxc config device add tf proxy0 proxy listen=tcp:192.168.31.234:1003 connec
 sudo lxc config device set tf proxy1 listen=tcp:新监听地址
 ```
 
-### 容器中安装cudnn
+### 容器的虚拟环境中安装pytorch
 
-与上边相同
+略
 
-### 容器中安装pytorch
+### 其他
 
-### 可选项目：
+```
+# 查看容器剩余容量
+df -hl
+# 查看剩余内存
+free -m
+# 查看宿主机容量
+zfs list
+lxc stop --all //关闭所有容器
+
+```
 
 #### 可视化管理界面设置：
 
@@ -476,13 +561,18 @@ sudo lxc config device set tf proxy1 listen=tcp:新监听地址
 
 ```
 conda activate lxd39
+//在root文件夹下（或某一文件夹）
+git clone https://github.com/AdaptiveScale/lxdui.git
+cd lxdui
+# 安装依赖包
 python setup.py install
 pip install Werkzeug==2.0.0
 lxdui start
 
 ```
 
-进入页面控制：ip:15151
+进入页面控制：服务器ip地址:15151
+
 
 ```
 # 通用方案✖：以下方案很大可能不行
@@ -499,31 +589,23 @@ lxdui start
 nohup python3 run.py start > python.log3 2>&1 &
 ```
 
-#### 安装firefox
+#### LXD
+
+删除LXD
 
 ```
-sudo apt update && sudo apt upgrade
-sudo apt install firefox
+sudo snap remove --purge lxd
+sudo apt remove --purge lxd-installer
 ```
 
-#### 最小最大化按钮
-
 ```
-# 切换到右上角
-gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
-# 切换到左上角
-gsettings set org.gnome.desktop.wm.preferences button-layout "minimize,maximize,close:"
+lxc delete tf	//删除容器
 ```
 
-### 其他
+ssh连接容器
 
 ```
-# 查看容器剩余容量
-df -hl
-# 查看剩余内存
-free -m
-# 查看宿主机容量
-zfs list
+ssh root@10.63.44.76 -p 9002	//从Windows端连接
 ```
 
 # 环境配置及问题解决
@@ -634,7 +716,6 @@ AttributeError: module ‘numpy‘ has no attribute ‘float‘.
 pip install numpy==1.23.5
 ```
 
-
 开始训练
 
 ```
@@ -642,7 +723,6 @@ python train.py -l 0.001 -g 0 -pretrained ./weight/yolov4.pth -classes 2 -dir ./
 ```
 
 -l：学习率。-g ：gpu id。-pretrained  ：预训练权值。-classes  ：类别种类。-dir ：图片所在文件夹。
-
 
 ## yolov5
 
@@ -919,7 +999,7 @@ pip install seaborn
 2. 在ultralytics/engine/trainer.py中的_setup_train函数中将self.args.nbs等于self.batch_size,这样做的目的是让模型不需要积累梯度再进行更新参数
 3. ultralytics/cfg/default.yaml配置文件的更改
 
-## Faster-RCNN
+## Faster-RCNN(可以运行，但无法查看参数量等信息)
 
 创建虚拟环境
 
@@ -1081,7 +1161,7 @@ CUDA_VISIBLE_DEVICES=0 python trainval_net.py  --dataset pascal_voc --net vgg16 
 例如我训练好的模型名为faster_rcnn_1_9_9547.pth，它就对应了 checksession 为1 ，checkepoch为 9，checkpoint为 9547
 
 ```
-CUDA_VISIBLE_DEVICES=0 python trainval_net.py --dataset pascal_voc --net vgg16 --bs 16 --nw 16  --cuda --r true --checksession 1 --checkepoch 100 --checkpoint 387 --epochs 100
+CUDA_VISIBLE_DEVICES=0 python trainval_net.py --dataset pascal_voc --net vgg16 --bs 16 --nw 16  --cuda --r true --checksession 1 --checkepoch 100 --checkpoint 387 --epochs 200
 ```
 
 测试
@@ -1207,8 +1287,7 @@ python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_s.py -c YOLOX_out
 //若想进行视频预测，只需将下面的 image 更换为 video；
 //若想预测整个文件夹，将.jpg去掉，只留 --path assets/
 
-
-## mmdetection
+## mmdetection（无法运行）
 
 创建虚拟环境
 
@@ -1228,7 +1307,7 @@ conda config --remove-key channels
 安装pytorch：
 
 ```
-conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+pip install torch==1.8.1+cu101 torchvision==0.9.1+cu101 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 安装mmdet
@@ -1238,9 +1317,48 @@ pip install -U openmim
 mim install mmcv-full
 ```
 
+使用 MIN安装 MMEngine和 MMVC
+
+```
+pip install -U openmim
+mim install mmengine
+mim install "mmcv>=2.0.0"
+```
+
 安装 MMDetection
 
+```
+git clone https://github.com/open-mmlab/mmdetection.git
+cd mmdetection
+pip install -v -e .
 
+# "-v" means verbose, or more output
+# "-e" means installing a project in editable mode,
+# thus any local modifications made to the code will take effect without reinstallation.
+
+```
+
+下载配置文件和模型权重文件。
+
+```
+mim download mmdet --config rtmdet_tiny_8xb32-300e_coco --dest .
+```
+
+推理验证
+
+```
+python demo/image_demo.py demo/demo.jpg rtmdet_tiny_8xb32-300e_coco.py --weights rtmdet_tiny_8xb32-300e_coco_20220902_112414-78e30dcc.pth --device cpu
+```
+
+mmdet/datasets 这个文件夹，复制名为 coco.py 文件
+
+训练
+
+```
+python tools/train.py configs/faster_rcnn/faster-rcnn_r18_fpn_8xb8-amp-lsj-200e_coco.py  --work-dir workdir_hurricane/
+```
+
+python tools/train.py configs/faster_rcnn/myconfig.py  --work-dir workdir_hurricane/
 
 # 问题解决
 
