@@ -1178,7 +1178,7 @@ CUDA_VISIBLE_DEVICES=0 python trainval_net.py --dataset pascal_voc --net vgg16 -
 修改文件test_net.py中的test为val
 
 ```
-python test_net.py --dataset pascal_voc --net vgg16 --checksession 1 --checkepoch 1 --checkpoint 473 --cuda
+python test_net.py --dataset pascal_voc --net vgg16 --checksession 1 --checkepoch 200 --checkpoint 387 --cuda
 //473为文件编号
 ```
 
