@@ -338,3 +338,7 @@ xftp7安装、配置
 ![1702367416535](image/Windows操作/1702367416535.png)
 
 找到相关占用文件后结束进程就可以了。
+
+# EndNote21安装
+
+[EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
