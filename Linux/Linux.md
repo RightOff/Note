@@ -538,11 +538,28 @@ sudo lxc config device set tf proxy1 listen=tcp:新监听地址
 
 添加共享文件夹
 
+```
+sudo lxc config set tf security.privileged true
+sudo lxc config device add tf share disk source=/share path=/share
+```
+
 添加GPU硬件
 在宿主机中执行以下命令
 
 ```
 lxc config device add tf gpu gpu
+```
+
+ssh：
+
+```
+vim /etc/ssh/sshd_config
+#PermitRootLogin without-password改为
+PermitRootLogin yes
+//PasswordAuthentication no改为
+PasswordAuthentication yes
+#重启ssh服务
+/etc/init.d/ssh restart
 ```
 
 ### 容器的虚拟环境中安装pytorch
@@ -581,7 +598,6 @@ lxdui start
 ```
 
 进入页面控制：服务器ip地址:15151
-
 
 ```
 # 通用方案✖：以下方案很大可能不行

@@ -342,3 +342,13 @@ xftp7安装、配置
 # EndNote21安装
 
 [EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
+
+# Word
+
+## 格式
+
+### 插入mathtype公式后行间距变大
+
+取消以下两个对号。
+
+![1706617419949](image/Windows操作/1706617419949.png)
