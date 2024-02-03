@@ -1,26 +1,18 @@
-# Word 转 PDF
+# Word
 
-## 目录中显示：错误未定义书签
+## 格式
+
+### Word 转 PDF后目录中显示：错误未定义书签
 
 全选后按住ctrl+F11或者Ctrl+Shift+F9即可
 
 ![1684374518503](image/Windows操作/1684374518503.png)
 
-Distribution Focal Loss的公式如下：
+### 插入mathtype公式后行间距变大
 
-$$
-\begin{aligned}
-L_{DFL}(p_i, t_i) &= -\alpha_t (1 - p_i)^{\gamma_t} \log(p_i) \
-&\quad\quad -\alpha_f p_i^{\gamma_f} \log(1 - p_i) \
-&\quad\quad -\beta_t \log(\hat{p}_i) - \beta_f \log(1 - \hat{p}_i),
-\end{aligned}
-$$
+取消以下两个对号。
 
-其中，$p_i$表示预测框$i$中包含目标的概率，$t_i$表示$i$框的真实类别标签，$\alpha_t$和$\alpha_f$是正负样本的平衡参数，$\gamma_t$和$\gamma_f$是Focal Loss中的调节因子，$\hat{p}_i$表示预测框$i$中目标的分布概率密度函数，$\beta_t$和$\beta_f$是[Distribution Focal Loss]()中的调节因子。
-
-具体来说，该损失函数中的第一项和第二项分别是Focal Loss中的正样本损失和负样本损失，用于加强对难分类样本的学习。而第三项和第四项是Distribution Focal Loss中的正样本损失和负样本损失，用于约束预测框中目标的分布概率密度函数，以更好地衡量目标检测中边界框的不确定性。
-
-需要注意的是，以上公式中的各个参数需要根据具体的任务和数据集进行调节和优化。
+![1706617419949](image/Windows操作/1706617419949.png)
 
 # 批量复制指定文件
 
@@ -77,6 +69,16 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v Fli
 2.点击右下角设置-更多播放设置
 
 3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
+
+## 移动文件夹时显示文件被占用
+
+查询被占用文件的方法：
+
+打开任务管理器、选择性能、右上角资源管理器、在关联的句柄里搜索文件夹的名字
+
+![1702367416535](image/Windows操作/1702367416535.png)
+
+找到相关占用文件后结束进程就可以了。
 
 # Git
 
@@ -329,26 +331,6 @@ xftp7安装、配置
 
 测试
 
-# 移动文件夹时显示文件被占用
-
-查询被占用文件的方法：
-
-打开任务管理器、选择性能、右上角资源管理器、在关联的句柄里搜索文件夹的名字
-
-![1702367416535](image/Windows操作/1702367416535.png)
-
-找到相关占用文件后结束进程就可以了。
-
 # EndNote21安装
 
 [EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
-
-# Word
-
-## 格式
-
-### 插入mathtype公式后行间距变大
-
-取消以下两个对号。
-
-![1706617419949](image/Windows操作/1706617419949.png)
