@@ -2,33 +2,98 @@
 
 ## 格式
 
-### 转 PDF目录中显示：错误未定义书签
+### Word 转 PDF后目录中显示：错误未定义书签
 
 全选后按住ctrl+F11或者Ctrl+Shift+F9即可
 
 ![1684374518503](image/Windows操作/1684374518503.png)
-
-Distribution Focal Loss的公式如下：
-
-$$
-\begin{aligned}
-L_{DFL}(p_i, t_i) &= -\alpha_t (1 - p_i)^{\gamma_t} \log(p_i) \
-&\quad\quad -\alpha_f p_i^{\gamma_f} \log(1 - p_i) \
-&\quad\quad -\beta_t \log(\hat{p}_i) - \beta_f \log(1 - \hat{p}_i),
-\end{aligned}
-$$
-
-其中，$p_i$表示预测框$i$中包含目标的概率，$t_i$表示$i$框的真实类别标签，$\alpha_t$和$\alpha_f$是正负样本的平衡参数，$\gamma_t$和$\gamma_f$是Focal Loss中的调节因子，$\hat{p}_i$表示预测框$i$中目标的分布概率密度函数，$\beta_t$和$\beta_f$是[Distribution Focal Loss]()中的调节因子。
-
-具体来说，该损失函数中的第一项和第二项分别是Focal Loss中的正样本损失和负样本损失，用于加强对难分类样本的学习。而第三项和第四项是Distribution Focal Loss中的正样本损失和负样本损失，用于约束预测框中目标的分布概率密度函数，以更好地衡量目标检测中边界框的不确定性。
-
-需要注意的是，以上公式中的各个参数需要根据具体的任务和数据集进行调节和优化。
 
 ### 插入mathtype公式后行间距变大
 
 取消以下两个对号。
 
 ![1706617419949](image/Windows操作/1706617419949.png)
+
+# 文件夹操作
+
+## 批量复制指定文件
+
+### 生成文件清单
+
+点击主页工具栏上的复制路径图标
+
+![1689391896002](image/Windows操作/1689391896002.png)
+
+粘贴到空白文件中
+
+![1689391952522](image/Windows操作/1689391952522.png)
+
+### 批量复制
+
+将已知的文件名复制到excel中第一列的位置
+
+![1689392033729](image/Windows操作/1689392033729.png)
+
+="copy D:\IMAGE\FAIL\"  & A1 & " D:\IMAGE\test"。其中“D:\IMAGE\FAIL\”与“D:\IMAGE\test”替换成自己对应的源文件路径名和目标路径
+
+再复制一次粘贴为值
+
+![1689392614373](image/Windows操作/1689392614373.png)
+
+新建一个记事本复制copy...的内容
+
+最后把“.txt”修改为“.bat”执行该文件
+
+## 移动文件夹时显示文件被占用
+
+查询被占用文件的方法：
+
+打开任务管理器、选择性能、右上角资源管理器、在关联的句柄里搜索文件夹的名字
+
+![1702367416535](image/Windows操作/1702367416535.png)
+
+找到相关占用文件后结束进程就可以了。
+
+# Windows系统
+
+## 关闭Windows自动更新
+
+永久关闭（关闭10年）。
+
+打开cmd，输入以下命令即可
+
+```
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v FlightSettingsMaxPauseDays /t reg_dword /d 3000 /f
+```
+
+## 组策略没有权限打开
+
+删除machine中的两个文件
+
+![1702955922697](image/Windows操作/1702955922697.png)
+
+## win11看B站很卡
+
+考虑到题主其他视频网站都不卡，唯有B站卡，猜测是B站近期大力推行HEVC视频编码标准有关，解决方法如下：
+
+1.进入网页版B站，播放任意视频
+
+2.点击右下角设置-更多播放设置
+
+3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
+
+## 右下角显示未激活水印
+
+新建记事本remove.bat，输入以下代码
+
+```
+@echo off
+taskkill /F /IM explorer.exe
+explorer.exe
+exit
+```
+
+保存后以管理员身份打开，然后重启电脑。
 
 # Git
 
@@ -222,63 +287,7 @@ IdentityFile ~/.ssh/id_rsa
 ssh -T git@github.com	//之后按提示输入yes
 ```
 
-# 其他
-
-## 批量复制指定文件
-
-### 1.生成文件清单
-
-点击主页工具栏上的复制路径图标
-
-![1689391896002](image/Windows操作/1689391896002.png)
-
-粘贴到空白文件中
-
-![1689391952522](image/Windows操作/1689391952522.png)
-
-### 批量复制
-
-将已知的文件名复制到excel中第一列的位置
-
-![1689392033729](image/Windows操作/1689392033729.png)
-
-="copy D:\IMAGE\FAIL\"  & A1 & " D:\IMAGE\test"。其中“D:\IMAGE\FAIL\”与“D:\IMAGE\test”替换成自己对应的源文件路径名和目标路径
-
-再复制一次粘贴为值
-
-![1689392614373](image/Windows操作/1689392614373.png)
-
-新建一个记事本复制copy...的内容
-
-最后把“.txt”修改为“.bat”执行该文件
-
-## 关闭Windows自动更新
-
-永久关闭（关闭10年）。
-
-打开cmd，输入以下命令即可
-
-```
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v FlightSettingsMaxPauseDays /t reg_dword /d 3000 /f
-```
-
-## 组策略没有权限打开
-
-删除machine中的两个文件
-
-![1702955922697](image/Windows操作/1702955922697.png)
-
-## win11看B站很卡
-
-考虑到题主其他视频网站都不卡，唯有B站卡，猜测是B站近期大力推行HEVC视频编码标准有关，解决方法如下：
-
-1.进入网页版B站，播放任意视频
-
-2.点击右下角设置-更多播放设置
-
-3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
-
-## Vue安装(实验室网页)
+# Vue安装(实验室网页)
 
 1.进入官网下载Node.js
 
@@ -337,27 +346,6 @@ xftp7安装、配置
 
 测试
 
-## 移动文件夹时显示文件被占用
-
-查询被占用文件的方法：
-
-打开任务管理器、选择性能、右上角资源管理器、在关联的句柄里搜索文件夹的名字
-
-![1702367416535](image/Windows操作/1702367416535.png)
-
-找到相关占用文件后结束进程就可以了。
-
-## EndNote21安装
+# EndNote21安装
 
 [EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
-
-## 远程桌面连接不能用剪切板
-
-cmd中操作如下命令
-
-```
-tasklist | findstr "rdp" 	//查看是否有rdp进程
-rdpclip.exe	//没有rdp的话，创建rdpclip
-taskkill /im rdpclip.exe /f	//强制杀掉rdpclip进程
-rdpclip.exe	//重新启动进程
-```
