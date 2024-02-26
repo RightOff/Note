@@ -130,7 +130,6 @@ int main()
 
 ## WebServer
 
-
 # 未解答的疑问
 
 ## C++primer书
@@ -158,4 +157,8 @@ while (it != v1.end())
 
 # Ubuntu相关命令
 
-taskkill /im rdpclip.exe /f
+查看gcc的安装路径
+
+```
+gcc -print-search-dirs
+```
