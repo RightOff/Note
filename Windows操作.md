@@ -430,7 +430,9 @@ xftp7安装、配置
 
 [EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
 
-## 远程桌面连接不能用剪切板
+## 远程桌面连接
+
+### 不能用剪切板
 
 cmd中操作如下命令
 
@@ -440,3 +442,9 @@ rdpclip.exe	//没有rdp的话，创建rdpclip
 taskkill /im rdpclip.exe /f	//强制杀掉rdpclip进程
 rdpclip.exe	//重新启动进程
 ```
+
+### 总是出现内部错误
+
+1. “ Windows + R ”输入“ services.msc ”。
+2. 停止Remote Desktop Services。
+3. 重启Remote Desktop Services，并设置启动类型为自动。
