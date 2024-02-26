@@ -448,3 +448,9 @@ rdpclip.exe	//重新启动进程
 1. “ Windows + R ”输入“ services.msc ”。
 2. 停止Remote Desktop Services。
 3. 重启Remote Desktop Services，并设置启动类型为自动。
+
+第二种方法：
+
+![1708922447714](image/Windows操作/1708922447714.png)
+
+![1708922470486](image/Windows操作/1708922470486.png)
