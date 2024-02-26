@@ -18,6 +18,12 @@
 
 ## 批量复制指定文件
 
+<<<<<<< HEAD
+
+### 插入mathtype公式后行间距变大
+
+取消以下两个对号。
+
 ### 生成文件清单
 
 点击主页工具栏上的复制路径图标
@@ -81,6 +87,14 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v Fli
 2.点击右下角设置-更多播放设置
 
 3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
+
+>>>>>>> 6fdb633af7199a348cd3ccea0b8c5dc06813c7a2
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
 
 ## 右下角显示未激活水印
 
@@ -287,7 +301,63 @@ IdentityFile ~/.ssh/id_rsa
 ssh -T git@github.com	//之后按提示输入yes
 ```
 
-# Vue安装(实验室网页)
+# 其他
+
+## 批量复制指定文件
+
+### 1.生成文件清单
+
+点击主页工具栏上的复制路径图标
+
+![1689391896002](image/Windows操作/1689391896002.png)
+
+粘贴到空白文件中
+
+![1689391952522](image/Windows操作/1689391952522.png)
+
+### 批量复制
+
+将已知的文件名复制到excel中第一列的位置
+
+![1689392033729](image/Windows操作/1689392033729.png)
+
+="copy D:\IMAGE\FAIL\"  & A1 & " D:\IMAGE\test"。其中“D:\IMAGE\FAIL\”与“D:\IMAGE\test”替换成自己对应的源文件路径名和目标路径
+
+再复制一次粘贴为值
+
+![1689392614373](image/Windows操作/1689392614373.png)
+
+新建一个记事本复制copy...的内容
+
+最后把“.txt”修改为“.bat”执行该文件
+
+## 关闭Windows自动更新
+
+永久关闭（关闭10年）。
+
+打开cmd，输入以下命令即可
+
+```
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v FlightSettingsMaxPauseDays /t reg_dword /d 3000 /f
+```
+
+## 组策略没有权限打开
+
+删除machine中的两个文件
+
+![1702955922697](image/Windows操作/1702955922697.png)
+
+## win11看B站很卡
+
+考虑到题主其他视频网站都不卡，唯有B站卡，猜测是B站近期大力推行HEVC视频编码标准有关，解决方法如下：
+
+1.进入网页版B站，播放任意视频
+
+2.点击右下角设置-更多播放设置
+
+3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
+
+## Vue安装(实验室网页)
 
 1.进入官网下载Node.js
 
@@ -346,6 +416,27 @@ xftp7安装、配置
 
 测试
 
-# EndNote21安装
+## 移动文件夹时显示文件被占用
+
+查询被占用文件的方法：
+
+打开任务管理器、选择性能、右上角资源管理器、在关联的句柄里搜索文件夹的名字
+
+![1702367416535](image/Windows操作/1702367416535.png)
+
+找到相关占用文件后结束进程就可以了。
+
+## EndNote21安装
 
 [EndNote新手攻略 | 西园公子的科研百宝箱 (zwjjiaozhu.top)](https://study.zwjjiaozhu.top/posts/EndNote.html)
+
+## 远程桌面连接不能用剪切板
+
+cmd中操作如下命令
+
+```
+tasklist | findstr "rdp" 	//查看是否有rdp进程
+rdpclip.exe	//没有rdp的话，创建rdpclip
+taskkill /im rdpclip.exe /f	//强制杀掉rdpclip进程
+rdpclip.exe	//重新启动进程
+```
