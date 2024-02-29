@@ -46,6 +46,10 @@ int *&rp = p;
 
 `&`说明rp是一个引用。`*`确定rp引用的类型是一个指针。
 
+## GCC编码过程
+
+![1709187696144](image/C++/1709187696144.png)
+
 ## 关键字
 
 ### explicit
@@ -130,7 +134,17 @@ int main()
 
 ## WebServer
 
-### 简要概述
+### Introduction
+
+#### 并发模式：半同步/半异步
+
+
+
+#### 事件处理模式：Reactor
+
+
+
+
 
 ### HTTPClient
 
@@ -281,8 +295,6 @@ epoll支持水平触发（level trigger，LT)或边缘触发(edge trigger，ET)�
 5. epoll如果采用边缘触发模式效率高，系统不会充斥大量不关心的就绪文件描述符。select和poll没有边缘触发模式。
 
 例外情况：虽然epoll的性能最好，但是在连接数少并且连接都十分活跃的情况下，select和poll的性能可能比epoll好，毕竟epoll的通知机制需要很多函数回调。
-
-
 
 ### EventLoop
 
@@ -575,6 +587,62 @@ int main()
 
 `push_back() `在底层实现时，会优先选择调用移动构造函数，如果没有才会调用拷贝构造函数。
 
+### EventLoopThread
+
+one loop one thread的两个结构就是 **EventLoop** 和 **Thread，所以EventLoopThread是此结构的面向对象的实现。**
+
+
+
+### Timer
+
+#### 处理逻辑
+
+#### priority_queue
+
+```
+priority_queue<int,vector <int>,less <int>> q;
+```
+
+底层实现为堆，默认为大根堆，队列中的元素按优先级由大到小排列（大根堆下固定不变的规则）。
+
+重载小于示例如下：
+
+```
+struct node
+{
+	int x,y;
+	bool operator < (const node & a) const
+	{
+		return x<a.x;
+	}
+};
+```
+
+重载后的规则为x小者小，在默认优先队列中意思为x小的优先级小。
+
+##### less和greater
+
+```
+priority_queue <int,vector<int>,less<int> > p;
+priority_queue <int,vector<int>,greater<int> > q;   
+//注意，以上>号不要拼在一起
+```
+
++ less `<int>` 表示数字大的优先级越大，默认优先队列中从大到小排列
++ greater `<int>` 表示数字小的优先级越大，默认优先队列中从小到大排列。
+
+### util
+
+
+
+当往一个写端关闭的管道中连续写入数据时会引发SIGPIPE信号，引发SIGPIPE信号的写操作将设置errno为EPIPE。
+
+在TCP通信中，当通信的双方中的一方close一个连接时，若另一方接着发数据，根据TCP协议的规定，会收到一个RST响应报文，若再往这个服务器发送数据时，系统会发出一个SIGPIPE信号给进程，告诉进程这个连接已经断开了，不能再写入数据。
+
+SIGPIPE信号的默认行为是结束进程，一般将其
+
+
+### +++++base+++++
 
 ### MutexLock
 
@@ -615,7 +683,6 @@ int main()
 ```
 
 PS：当类的声明和定义分别在两个文件中时，explicit只能写在声明中，不能卸载定义中。
-
 
 # 未解答的疑问
 
