@@ -326,6 +326,297 @@ read返回值：
 
 **write()**
 
+#### 值类别和变量类型
+
+##### 两者区别
+
++ 值只有类别*(category)*的划分，变量 只有类型*(type)*的划分
++ 值不一定拥有身份*(identity)*，也不一定拥有变量名（例如 表达式中间结果 `i + j + k`）
+
+##### 左值引用 vs 右值引用 vs 常引用
+
++ 左值 *(lvalue, loactor value)* 是能被取地址、不能被移动的值。loactor value 英文意为存储在内存中、有明确存储地址（可寻址）的数据。
++ 右值(rvalue, read value) 是表达式中间结果/函数返回值，read value 英文意为那些可以提供数据值的数据（不一定可以寻址，例如存储于寄存器中的数据）。
++ 左值引用 *(l-ref, lvalue reference)* 用 `&` 符号引用左值（但不能引用右值），常量左值引用既可以引用左值，也可以引用右值。
++ 右值引用 *(r-ref, rvalue reference)* 用 `&&` 符号引用右值（也可以指向移动左值），右值引用可以对右值进行修改。和声明左值引用一样，右值引用也必须立即进行初始化操作，且只能使用右值进行初始化。C++ 语法上是支持定义常量右值引用的，但无实际用处。
++ 常引用  *(c-ref, const reference)* ，同时接受左值/右值进行初始化。
+
+C++11 标准将右值分为纯右值（Pure value，简称 pvalue）和将亡值（eXpiring value，简称 xvalue ），将亡值则指的是和右值引用相关的表达式（比如某函数返回的 T && 类型的表达式）
+
+C++11 标准新增的移动语义主要解决std::unique_ptr所有权转移的问题，同时可以避免先拷贝再释放资源的问题。
+
+C++11 标准新增的右值引用是用来配合移动语义，实现移动构造函数和移动赋值函数功能。
+
+#### 移动构造函数和移动赋值操作符
+
+C++11 标准引入的移动语义的概念，通过移动构造函数和移动赋值操作符，更高效地管理对象资源。
+
+其借助 `std::move()`/`std::forward()`显式的**移动转发**或**完美转发**（针对不同左右值参数的转发），将变量“还原”为右值（右值引用类型）。
+
+##### 移动构造函数（Move Constructor）
+
+移动构造函数使用右值引用作为参数，能够从一个右值引用（rvalue reference）创建新的对象，而无需进行深拷贝（deep copy）。其将原始对象的资源直接转移到新对象中，而不是进行复制。转移后原始对象内容被删除（手动编写）。
+
+可以理解为快速的拷贝构造函数。
+
+基本格式：
+
+```
+ClassName(ClassName&& other) noexcept	//在构造函数后面写noexcept，表示不会抛出
+{
+    // Move the resources from 'other' to the new object，进行资源所有权的转移
+    // ...
+}
+
+```
+
+示例如下：
+
+```
+#include <iostream>
+
+class MyObject {
+private:
+    int* data;
+
+public:
+    MyObject() : data(nullptr) {
+        std::cout << "Default Constructor" << std::endl;
+    }
+
+    MyObject(int value) : data(new int(value)) {
+        std::cout << "Regular Constructor" << std::endl;
+    }
+
+    // 移动构造函数
+    MyObject(MyObject&& other)noexcept : data(other.data) {
+        other.data = nullptr;	//原始对象中的内容被删除
+        std::cout << "Move Constructor" << std::endl;
+    }
+
+    void printData() const {
+        if (data != nullptr) {
+            std::cout << "Data: " << *data << std::endl;
+        } else {
+            std::cout << "Data is null" << std::endl;
+        }
+    }
+};
+
+int main() {
+    MyObject obj1(10);
+    obj1.printData();
+   
+    MyObject obj2(std::move(obj1));  // 使用std::move调用移动构造函数
+    obj2.printData();
+  
+    obj1.printData();  // obj1的data现在为null
+
+    return 0;
+}
+
+/*输出如下：
+Regular Constructor
+Data: 10
+Move Constructor
+Data: 10
+Data is null
+*/
+
+```
+
+##### 移动赋值操作符（Move Assignment Operator）
+
+移动赋值操作符也是用右值引用作为参数。将源对象的资源直接转移到目标对象中，同时将源对象恢复到一种可安全销毁或重新赋值的状态。
+
+基本格式：
+
+```
+ClassName& operator=(ClassName&& other) noexcept
+{
+    // Move the resources from 'other' to the current object
+    // ...
+    return *this;
+}
+```
+
+示例代码：
+
+```
+class MyObject {
+private:
+    int* data;
+
+public:
+    MyObject() : data(nullptr) {
+        std::cout << "Default Constructor" << std::endl;
+    }
+
+    MyObject(int value) : data(new int(value)) {
+        std::cout << "Regular Constructor" << std::endl;
+    }
+
+    // 移动构造函数
+    MyObject(MyObject&& other) noexcept : data(other.data) {
+        other.data = nullptr;
+        std::cout << "Move Constructor" << std::endl;
+    }
+
+    // 移动赋值操作符
+    MyObject& operator=(MyObject&& other) noexcept {
+        if (this != &other) {
+            delete data;
+            data = other.data;
+            other.data = nullptr;
+        }
+        std::cout << "Move Assignment Operator" << std::endl;
+        return *this;
+    }
+
+    void printData() const {
+        if (data != nullptr) {
+            std::cout << "Data: " << *data << std::endl;
+        } else {
+            std::cout << "Data is null" << std::endl;
+        }
+    }
+};
+
+int main() {
+    MyObject obj1(10);
+    obj1.printData();
+
+    MyObject obj2;
+    obj2 = std::move(obj1);  // 使用std::move调用移动赋值操作符
+    obj2.printData();
+
+    obj1.printData();  // obj1的data现在为null
+
+    return 0;
+}
+/*输出结果
+Regular Constructor
+Data: 10
+Default Constructor
+Move Assignment Operator
+Data: 10
+Data is null
+*/
+```
+
+##### 总结
+
+移动构造函数（move constructor）和移动赋值操作符（move assignment operator）的作用是允许将临时对象或资源所有权从一个对象转移给另一个对象，而无需执行深层的数据拷贝和分配新资源。
+
+通过使用右值引用（&&）来标识移动语义，并使用std::move()函数将对象转换为右值。
+
+两者的优点：
+
++ 减少不必要的数据拷贝和资源分配，提高程序的性能和效率。
++ 在处理大型对象或大量数据时，减少内存的占用和提高程序的响应速度。
++ 支持对不可拷贝的对象进行移动操作，使得这些对象也可以被移动和管理。
+
+两者使用时的注意要点：
+
++ 移动操作并不会自动删除或释放资源，只是转移资源的所有权关系。移动后的对象需要负责管理和释放资源。
++ 被移动的对象进入一个 **合法但未指定状态**  *(valid but unspecified state)* ，调用该对象的方法（包括析构函数）不会出现异常，甚至**在重新赋值后可以继续使用**。
++ 构造函数应该具有noexcept规定，表示它们不会抛出异常。
+
+#### emplace_back和push_back
+
++ `emplace_back`是在末尾直接构造元素，而非先构造一个临时对象再将其复制（或移动）到容器中。与push_back相比，其核心优势在于减少了不必要的对象拷贝或移动操作，提升了效率。此外，如果添加的对象有多个构造函数，`emplace_back`可以根据传入的参数灵活调用对应的构造函数，示例如下
+
+  ```
+  std::vector<MyClass> vec;
+  vec.emplace_back(arg1, arg2, arg3); // 直接在容器末尾构造对象，arg1、arg2和arg3是传递给MyClass构造函数的参数
+  ```
++ `push_back`首先会创建这个元素的一个副本或者移动构造（如果支持的话），然后将该副本或移动后的对象插入到容器中。这个过程涉及到至少一次的对象构造和可能的一次额外的对象拷贝或移动。
+
+对比示例如下：
+
+```
+class testDemo
+{
+public:
+    testDemo(int num):num(num){
+        std::cout << "调用构造函数" << endl;
+    }
+    testDemo(const testDemo& other) :num(other.num) {
+        std::cout << "调用拷贝构造函数" << endl;
+    }
+    testDemo(testDemo&& other) :num(other.num) {
+        std::cout << "调用移动构造函数" << endl;
+    }
+private:
+    int num;
+};
+int main()
+{
+    cout << "emplace_back:" << endl;
+    std::vector<testDemo> demo1;
+    demo1.emplace_back(2);  
+
+    /*
+      以上输出为：
+      emplace_back:
+      调用构造函数
+    */
+
+    cout << "push_back:" << endl;
+    std::vector<testDemo> demo2;
+    demo2.push_back(2);
+    /*
+      push_back:
+      调用构造函数
+      调用移动构造函数
+    */
+}
+```
+
+`push_back() `在底层实现时，会优先选择调用移动构造函数，如果没有才会调用拷贝构造函数。
+
+
+### MutexLock
+
+#### explicit关键字
+
+作用：用来防止由构造函数定义的隐式转换。
+
+一个参数的构造函数（或者除第一个参数其余参数都带默认值的构造函数），承担两部分功能：构造和默认且隐含的类型转换操作符。
+
+使用示例如下：
+
+```
+#include <iostream>
+using namespace std;
+class Test1
+{
+public :
+	Test1(int num):n(num){}
+private:
+	int n;
+};
+class Test2
+{
+public :
+	explicit Test2(int num):n(num){}     //explicit禁止隐式转换
+private:
+	int n;
+};
+ 
+int main()
+{
+	Test1 t1 = 12;	//发射模糊隐式转换
+	Test2 t2(13);	//正常构造
+	Test2 t3 = 14;	//报错：无法从“int”转换为“Test2”
+
+	return 0;
+}
+```
+
+PS：当类的声明和定义分别在两个文件中时，explicit只能写在声明中，不能卸载定义中。
+
+
 # 未解答的疑问
 
 ## C++primer书
