@@ -79,6 +79,34 @@ int main()
 }
 ```
 
+### enum
+
+# 内存管理
+
+## 内存分布
+
+![1709294814841](image/C++/1709294814841.png)
+
+**Code Segment（代码区）**
+
+也称Text Segment，存放可执行程序的机器码。
+
+**Data Segment (数据区）**
+
+存放已初始化的全局和静态变量， 常量数据（如字符串常量）。
+
+**BSS（Block started by symbol)**
+
+存放未初始化的全局和静态变量。（默认设为0）
+
+**Heap（堆）**
+
+从低地址向高地址增长。容量大于栈，程序中动态分配的内存在此区域。
+
+**Stack（栈）**
+
+从高地址向低地址增长。由编译器自动管理分配。程序中的局部变量、函数参数值、返回变量等存在此区域。
+
 # C++练手项目
 
 ## 实现string类
@@ -138,13 +166,7 @@ int main()
 
 #### 并发模式：半同步/半异步
 
-
-
 #### 事件处理模式：Reactor
-
-
-
-
 
 ### HTTPClient
 
@@ -591,8 +613,6 @@ int main()
 
 one loop one thread的两个结构就是 **EventLoop** 和 **Thread，所以EventLoopThread是此结构的面向对象的实现。**
 
-
-
 ### Timer
 
 #### 处理逻辑
@@ -633,13 +653,16 @@ priority_queue <int,vector<int>,greater<int> > q;
 
 ### util
 
-
-
 当往一个写端关闭的管道中连续写入数据时会引发SIGPIPE信号，引发SIGPIPE信号的写操作将设置errno为EPIPE。
 
 在TCP通信中，当通信的双方中的一方close一个连接时，若另一方接着发数据，根据TCP协议的规定，会收到一个RST响应报文，若再往这个服务器发送数据时，系统会发出一个SIGPIPE信号给进程，告诉进程这个连接已经断开了，不能再写入数据。
 
 SIGPIPE信号的默认行为是结束进程，一般将其
+
+
+### HttpData
+
+
 
 
 ### +++++base+++++
