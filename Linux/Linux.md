@@ -1723,4 +1723,5 @@ git diff HEAD -- readme.txt	//查看版本库和工作区文件的区别
 git log 	//查看仓库的修改日志
 git log --pretty=oneline	//简化版日志
 git reset --hard HEAD^		//版本回退，HEAD表示当前版本，HEAD^表示上一个版本，HEAD^^表示上上版本
+which git	//查看git的安装地址
 ```
