@@ -1509,9 +1509,6 @@ source ~/.bashrc
   窗口放右边 win + →
   ```
 
-
-
-
 ## Anaconda
 
 + conda create -n tensorflow python=3.8		//创建虚拟环境
@@ -1582,3 +1579,148 @@ cp -r tired_driver    /root/yolov5\ search/
 $$
 \text{Contribution\ Ratio} = \frac{\text{Explained Variance}}{\text{Total Variance}}
 $$
+
+## git安装使用
+
+### 本地配置
+
+安装
+
+```
+sudo apt-get install git
+```
+
+配置用户名和邮箱
+
+```
+git config --global user.name "clh"
+git config --global user.email "1317754301@qq.com"
+
+//查看用户名和邮箱
+git config user.name
+git config user.email
+```
+
+配置SSH公钥，输入后连按回车
+
+```
+ssh-keygen -C 'example@example.com' -t rsa
+```
+
+复制公钥
+
+```
+cd ~/.ssh
+cat id_rsa.pub
+
+//如果没有该文件，创建一个
+mkdir ~/.ssh
+```
+
+在Github中 `settings->SSH and GPG keys->New SSH Key`输入复制的公钥，Title为名字（可任意取）
+
+进入需要git的文件下
+
+```
+git init 
+```
+
+创建文件
+
+```
+touch README.txt
+vim README.txt
+# 写入 Learning Git: New File.
+cat README.txt # 查看文件内容
+# 输出 Learning Git: New File.
+```
+
+将文件添加到仓库
+
+```
+git add README.txt
+```
+
+将文件提交到仓库
+
+```
+git commit -m "Submit a new file." 	# 双引号内是本次提交的注释，原则上可以随便写，但是尽量能表达出本次提交的改动。
+```
+
+### 远程仓库配置
+
+Github创建仓库
+
+本地添加远程仓库
+
+```
+git remote add <origin> git@github.com:<adenialzz/learngit.git>
+```
+
+提交到远程仓库
+
+```
+git push -u <origin> master	//第一次需要-u
+git push <origin> master	//之后不用
+```
+
+更新到本地
+
+```
+git pull <远程主机名> <远程分支名>:<本地分支名>
+git pull <orign> <remote>:<master>	//示例
+```
+
+### git版本控制原理
+
+![1709454607896](image/Linux/1709454607896.png)
+
++ 工作区（Working Directory），创建的文件所在的目录就是一个工作区。
++ 版本库，仓库（Repository），工作区有个隐藏目录 .git ，这个不算工作区，而是 Git 的版本库。
++ 版本库里面的 index(stage) 文件叫暂存区，还有Git为我们自动创建的第一个分支 master ，以及指向 master 的一个指针叫做 HEAD。
+
+关系：
+
+1. `git add` 把文件添加进去，实际就是将文件**修改**添加到暂存区
+2. `git commit`提交更改，把暂存区的所有内容提交到当前分支
+
+### 撤销修改操作
+
+1. 如果修改后还没有add，说明修改仅仅在工作区，使用 `git checkout -- <README.txt>`撤销修改。
+2. 如果修改后add过，说明修改已经保存在暂存区，使用 `git reset <HEAD README.txt>`将暂存区的修改退回到工作区，此时恢复到了第一种情况，再使用 `git checkout -- <README.txt>`即可撤销修改。
+3. add并commit后，此时修改已经提交到仓库，只能用版本回退，`git reset --hard HEAD^`
+
+### 文件删除、恢复操作
+
+在工作区中直接删除文件
+
+```
+rm <test.py>
+```
+
+确实要删除仓库中对应的文件
+
+```
+gitrm test.py
+```
+
+删除操作提交到仓库
+
+```
+git commit -m "delete test"
+```
+
+如果在工作区中误删文件，使用 `git checkout -- <test.py>`撤销删除
+
+### 其他指令
+
+```
+git status	//查看仓库当前状态
+git diff	//查看文件改动，可单独使用，也可以按顺序指定两个文件
+//diff举例
+git diff HEAD -- readme.txt	//查看版本库和工作区文件的区别
+
+git log 	//查看仓库的修改日志
+git log --pretty=oneline	//简化版日志
+git reset --hard HEAD^		//版本回退，HEAD表示当前版本，HEAD^表示上一个版本，HEAD^^表示上上版本
+```
