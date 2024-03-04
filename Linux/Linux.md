@@ -1385,9 +1385,9 @@ python tools/train.py configs/faster_rcnn/faster-rcnn_r18_fpn_8xb8-amp-lsj-200e_
 
 python tools/train.py configs/faster_rcnn/myconfig.py  --work-dir workdir_hurricane/
 
-# 问题解决
+## 问题解决
 
-## 创建环境时连接超时
+### 创建环境时连接超时
 
 错误信息：
 
@@ -1401,7 +1401,7 @@ CondaHTTPError: HTTP 000 CONNECTION FAILED for url
 
 打开文件然后修改里边的https为http，并在末尾加上：`ssl_verify: false`，即可。
 
-## root用户无法启动vscode
+### root用户无法启动vscode
 
 ```
 vi ~/.bashrc
@@ -1508,6 +1508,15 @@ source ~/.bashrc
   窗口放左边 win + ←
   窗口放右边 win + →
   ```
++ ```
+  //VsCode跳转到函数之后返回原来位置
+  Ctrl+Alt+'-'	//ubuntu
+  Alt+'-'		//Windows
+  ```
++ 
+
+
+
 
 ## Anaconda
 
