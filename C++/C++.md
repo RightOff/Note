@@ -820,6 +820,15 @@ int munmap(void *start, size_t length);
 * 若映射成功，mmap() 返回映射区的内存起始地址，munmap() 返回 0
 * 若映射失败，mmap() 返回 MAP_FAILED，其值为(void *)-1，munmap() 返回 -1
 
+#### MIME类型
+
+
+MIME (Multipurpose Internet Mail Extensions) 是描述消息内容类型的标准，用来表示文档、文件或字节流的性质和格式。
+
+MIME 消息能包含文本、图像、音频、视频以及其他应用程序专用的数据。
+
+浏览器通常使用 MIME 类型（而不是文件扩展名）来确定如何处理URL，因此 We b服务器在响应头中添加正确的 MIME 类型非常重要。如果配置不正确，浏览器可能会无法解析文件内容，网站将无法正常工作，并且下载的文件也会被错误处理。
+
 ### +++++base+++++
 
 ### MutexLock
@@ -861,6 +870,460 @@ int main()
 ```
 
 PS：当类的声明和定义分别在两个文件中时，explicit只能写在声明中，不能卸载定义中。
+
+### Thread
+
+#### std::function
+
+std::function是一个可调用的对象包装器，通过类实现，在编码时可以通过指定模板参数使用统一的方式处理函数、函数指针并可以当做回调函数使用。使用场景如下：
+
++ 绑定一个函数（普通函数或者静态函数）
+
+  ```
+  #include <functional>
+  //普通函数
+  void func(void)
+  {
+  std::cout << __FUNCTION__ << std::endl;
+  }
+
+  //静态类成员函数
+  class Foo
+  {
+  public:
+  static int foo_func(int a)
+  {
+  std::cout << __FUNCTION__ << "(" << a << ") ->:" ;
+  return a;
+    }
+  };
+
+  int main(void)
+  {
+  std::function<void(void)> fr = func;
+    fr();
+  std::function<int(int)> fr1 = Foo::foo_func;
+  std::cout << fr1(456) << std::endl;
+    }
+  ```
++ 实现回调函数
+
+  ```
+  #include <functional>
+  class A
+  {
+  std::function<void()> callback_;
+  public:
+    A(const std::function<void()>& f) :callback_(f) {};
+  void notify(void)
+  {
+      callback_();
+    }
+  };
+
+  class Foo {
+  public:
+  void operator()(void)
+  {
+  std::cout << __FUNCTION__ << std::endl;
+    }
+  };
+
+  int main(void)
+  {
+    Foo foo;
+  A aa(foo);
+    aa.notify();
+  }
+  ```
+
+  std::function可以取代函数指针，使得函数延迟执行，因此可以当回调函数使用。
++ 作为参数入参
+
+  ```
+  #include <functional>
+  void call_when_even(int x, const std::function<void(int)>& f)
+  {
+  if (!(x & 1))
+    {
+      f(x);
+    }
+  }
+  void output(int x)
+  {
+  std::cout << x << " ";
+  }
+  int main(void)
+  {
+  for (int i = 0; i < 10; ++i)
+    {
+      call_when_even(i, output);
+    }
+  std::cout << std::endl;
+  }
+  ```
+
+综上，std::function比普通的函数指针更加灵活方便。
+
+#### pthread_join
+
+```
+#include <pthread.h>
+int pthread_join(pthread_t thread, void ** retval);
+```
+
++ thread参数，用于指定接收哪个线程的返回值
++ retval参数，存储接收线程结束时的返回值，如果没有返回值或者不需要接收，可以置为NULL
+
+pthread_join()函数会一直阻塞调用它的线程，直到目标线程执行结束（接收到目标线程的返回值），阻塞才会接触。如果成功等到了目标线程执行结束（成功获取到目标线程的返回值），该函数返回值为0；反之如果执行失败会根据失败原因返回非0值，失败原因有：
+
++ EDEADLK：检测到线程发生死锁。
++ EINVAL：一种原因是之前已经有线程调用phread_join()函数获取到了目标线程的返回值；另一种是目标线程本身不允许其它线程获取它的返回值。
++ ESRCH：找不到指定的thread线程。
+
+
+### MutexLock
+
+pthread_mutex是一种基于线程的锁机制，用于保护共享资源，防止多个线程同时访问这些资源的同时进行修改。
+
+```
+int pthread_mutex_init(pthread_mutex_t * mutex, const pthread_mutexattr_t * attr);
+```
+
++ mutex参数，是一个指向pthread_mutex_t结构体的指针，用来指定要初始化的线程锁；
++ attr参数，是一个可选的指向pthread_mutexattr_t的指针，用来指定线程锁的属性，例如锁的类型、锁的进程共享属性等。不需要指定可以设置为NULL。常用属性如下：
+
+  + PTHREAD_PROCESS_SHARED：表示创建的互斥锁可以在多个进程间进行共享，即该互斥锁可以被多个进程同时占用和修改。使用该选项需要确保使用的操作系统支持进程间共享，否则将会发生错误。使用场景为：多个进程需要协同工作，同时使用共享资源时，需要使用该选项创建可进程共享的互斥锁。
+  + PTHREAD_MUTEX_RECURSIVE：表示创建的互斥锁是可递归的，即同一线程可以多次获取该互斥锁而不会发生死锁。递归锁经常用于模块内部实现，确保模块内部的可重入性。使用场景为：在同一个线程内，需要多次获取同一个互斥锁跨内部操作的时候使用。
+  + PTHREAD_MUTEX_ERRORCHECK：表示创建的互斥锁是错误检查的，即如果一个线程尝试多次获取同一个互斥锁，则会报错并返回一个错误码。对错误检查不够谨慎的程序可能会出现死锁问题。使用场景：在多线程应用程序的开发过程中，如果需要确保同一时间只有一个线程可以访问共享资源，但是其它线程尝试获取锁时，出现了错误，则使用该选项可以使应用程序在运行时发现这种错误情况，帮助定位调试问题。
+
+如果使用 `pthread_mutex_init`初始化的锁为 `NULL`，则表示创建的是一个进程内的锁（也称为“进程内锁”或“线程锁”），只能在同一个进程内的不同线程之间使用，无法在多个进程之间共享。
+
+**获取互斥锁**
+
+```
+pthread_mutex_lock(&mutex);
+```
+
+如果其他线程此时获取互斥锁，则会阻塞。
+
+**释放互斥锁**
+
+```
+pthread_mutex_unlock(&mutex);
+```
+
+销毁互斥锁
+
+```
+pthread_mutex_destroy(&mutex);
+```
+
+在程序结束时，还要通过pthread_mutex_destroy函数销毁互斥锁。
+
+### Condition
+
+概念：
+
+* 条件变量是线程可用的**另一种同步机制**
+* 条件变量**给多个线程**提供了一个会合的场所
+* 条件变量**与互斥量一起使用**时，允许线程以**无竞争的方式等待**特定的条件发生
+* 条件变量是线程中的东西，就是等待某一条件的发生，和信号一样
+
+使用场景：
+
+* 条件变量要与互斥量一起使用，条件本身是由互斥量保护的。线程在**改变条件状态之前**必须首**先锁住**互斥量
+* 其他线程在获得互斥量之前**不会察觉**到这种改变，因为互斥量必须在锁定以后才能计算条件
+
+**初始化条件变量**
+
+```
+#include <pthread.h>
+//静态初始化
+pthread_cond_t cond;
+cond=PTHREAD_COND_INITIALIZER;
+
+//动态初始化
+int pthread_cond_init(pthread_cond_t* restrict cond,const pthread_condattr_t* restrict attr);
+
+//销毁条件变量
+int pthread_cond_destroy(pthread_cond_t* cond);
+```
+
+**等待条件变量**
+
+```
+int pthread_cond_wait(pthread_cond_t* restrict cond,pthread_mutex_t* restrict mutex);
+
+//可以指定超时时间，传入的是绝对值（当前时间加上期望时间）
+int pthread_cond_timedwait(pthread_cond_t* cond,pthread_mutex_t* restrict mutex,const struct timespec* restrict tsptr);
+```
+
+pthread_cond_timedwait如果超时到期之后，条件还没有出现，此函数将重新获取互斥量，然后返回错误ETIMEOUT。
+
+**条件变量信号发送**
+
+```
+int pthread_cond_signal(pthread_cond_t* cond);	//至少能唤醒一个等待该条件的线程
+
+int pthread_cond_broadcast(pthread_cond_t* cond); //唤醒等待该条件的所有线程
+
+
+//返回值：成功返回0；失败返回错误编号
+```
+
+* 这两个函数用于通知线程条件变量已经满足条件（变为真）。在调用这两个函数时，是在给线程或者条件发信号。
+* **必须注意：** 一定要在改变条件状态以后再给线程发信号。
+
+![1709623619840](image/C++/1709623619840.png)
+
+
+# 设计模式
+
+## 单例模式
+
+单例模式(Singleton Pattern，也称为单件模式)，使用最广泛的设计模式之一。其意图是保证一个类仅有一个实例，并提供一个访问它的全局访问点，该实例被所有程序模块共享。
+
+**单例类特点：**
+
+1. 私有化构造函数和析构函数，禁止外部构造和析构，防止外界创建单例类的对象；
+2. 私有化拷贝函数和赋值构造函数，禁止外部拷贝和赋值，确保实例的唯一性；
+3. 使用类的私有静态指针变量指向类的唯一实例（可选，一般都有）；
+4. 提供一个公有的静态方法获取该实例。
+
+**单例模式的优点：**
+
+1. 节省资源。一个类只有一个实例，不存在多份实例，节省资源。
+2. 方便控制。在一些操作公共资源的场景时，避免了多个对象引起的复杂操作。
+
+**保证线程安全：**
+
+实现单例模式时，需要考虑到线程安全的问题。
+
+> 什么是线程安全？
+>
+> 假如有一个共享数据供多条线程使用，多条线程在并行执行的过程中，线程安全的代码会通过同步机制保证各个线程都可以正常且正确的执行和访问共享数据，不会出现数据污染等意外情况。
+
+保证线程安全的方法如下：
+
+1. 给共享的资源加把锁。保证每个资源变量每时每刻至多被一个线程占用。
+2. 让线程也拥有资源。使其不用去共享进程中的资源。如：使用threadlocal可以为每个线程维护一个私有的本地变量。
+
+**单例模式分类**
+
+可以分为懒汉式和饿汉式，两者的区别在于创建实例的时间不同。
+
++ 懒汉式：程序运行中，实例并不存在，只有当需要使用该实例时，才回去创建并使用该实例。该方式需要考虑线程安全。
++ 饿汉式：程序已运行，就初始化创建实例，当需要时，直接调用即可。该方式本身线程安全。
+
+### 懒汉式单例实现
+
+#### 普通懒汉式单例（线程不安全）
+
+这种情况是线程不安全的，不作详细介绍。
+
+#### 加锁的懒汉式单例（线程安全）
+
+使用互斥锁保证线程安全。
+
+有返回普通指针和智能指针两种方式。返回智能指针的方式如下：
+
+```
+#include <iostream>
+#include <memory>
+#include <mutex>
+
+
+class Singleton {
+
+public:
+
+    static std::shared_ptr<Singleton> getSingleton();
+
+    void print() {
+        std::cout << "Hello World." << std::endl;
+    }
+
+    ~Singleton() {
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+    }
+
+private:
+
+    Singleton() {
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+    }
+};
+
+static std::shared_ptr<Singleton> singleton = nullptr;
+static std::mutex singletonMutex;
+
+std::shared_ptr<Singleton> Singleton::getSingleton() {
+    if (singleton == nullptr) {
+        std::unique_lock<std::mutex> lock(singletonMutex);
+        if (singleton == nullptr) {
+            volatile auto temp = std::shared_ptr<Singleton>(new Singleton());
+            singleton = temp;
+        }
+    }
+    return singleton;
+}
+
+```
+
+#### 静态局部变量的懒汉单例（C++11线程安全）
+
+头文件：
+
+```
+///  内部静态变量的懒汉实现  //
+
+class Single
+{
+
+public:
+    // 获取单实例对象
+    static Single& GetInstance();
+
+	// 打印实例地址
+    void Print();
+
+private:
+    // 禁止外部构造
+    Single();
+
+    // 禁止外部析构
+    ~Single();
+
+    // 禁止外部拷贝构造
+    Single(const Single &single) = delete;
+
+    // 禁止外部赋值操作
+    const Single &operator=(const Single &single) = delete;
+};
+```
+
+源文件：
+
+```
+Single& Single::GetInstance()
+{
+    /**
+     * 局部静态特性的方式实现单实例。
+     * 静态局部变量只在当前函数内有效，其他函数无法访问。
+     * 静态局部变量只在第一次被调用的时候初始化，也存储在静态存储区，生命周期从第一次被初始化起至程序结束止。
+     */
+    static Single single;
+    return single;
+}
+
+void Single::Print()
+{
+    std::cout << "我的实例内存地址是:" << this << std::endl;
+}
+
+Single::Single()
+{
+    std::cout << "构造函数" << std::endl;
+}
+
+Single::~Single()
+{
+    std::cout << "析构函数" << std::endl;
+}
+```
+
+### 饿汉式单例（线程安全）
+
+头文件：
+
+```
+class Singleton
+{
+public:
+    // 获取单实例
+    static Singleton* GetInstance();
+
+    // 释放单实例，进程退出时调用
+    static void deleteInstance();
+  
+    // 打印实例地址
+    void Print();
+
+private:
+    // 将其构造和析构成为私有的, 禁止外部构造和析构
+    Singleton();
+    ~Singleton();
+
+    // 将其拷贝构造和赋值构造成为私有函数, 禁止外部拷贝和赋值
+    Singleton(const Singleton &signal);
+    const Singleton &operator=(const Singleton &signal);
+
+private:
+    // 唯一单实例对象指针
+    static Singleton *g_pSingleton;
+};
+```
+
+源文件：
+
+```
+// 代码一运行就初始化创建实例 ，本身就线程安全
+Singleton* Singleton::g_pSingleton = new (std::nothrow) Singleton();
+
+Singleton* Singleton::GetInstance()
+{
+    return g_pSingleton;
+}
+
+void Singleton::deleteInstance()
+{
+    if (g_pSingleton)
+    {
+        delete g_pSingleton;
+        g_pSingleton = nullptr;
+    }
+}
+```
+
+### C++11 std::call_once 实现单例
+
+```
+#include <iostream>
+#include <memory>
+#include <mutex>
+
+class Singleton {
+public:
+    static std::shared_ptr<Singleton> getSingleton();
+
+    void print() {
+        std::cout << "Hello World." << std::endl;
+    }
+
+    ~Singleton() {
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+    }
+
+private:
+    Singleton() {
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+    }
+};
+
+static std::shared_ptr<Singleton> singleton = nullptr;
+static std::once_flag singletonFlag;
+
+std::shared_ptr<Singleton> Singleton::getSingleton() {
+    std::call_once(singletonFlag, [&] {
+        singleton = std::shared_ptr<Singleton>(new Singleton());
+    });
+    return singleton;
+}
+```
+
+
+
 
 # 未解答的疑问
 
