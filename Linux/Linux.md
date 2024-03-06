@@ -64,12 +64,24 @@ If the font still has no generic name, add sans-serif
 
 ### 异常重启后（或其他情况）后不能用cuda
 
+方法1：
+
 ```
 # 给宿主机增加nvidia-uvm设备
 sudo /sbin/modprobe nvidia-uvm
 D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
 sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 # 第三步可能会报错，不影响使用,上述命令执行完成之后，重启容器
+```
+
+方法2：
+
+```
+ls /usr/src | grep nvidia
+//输出：nvidia-535.113.01
+
+sudo apt-get install dkms
+sudo dkms install -m nvidia -v 535.113.01
 ```
 
 ### E: Conflicting values set for option Signed-By regarding source
@@ -576,7 +588,7 @@ free -m
 # 查看宿主机容量
 zfs list
 lxc stop --all //关闭所有容器
-
+lxc start --all //开启所有容器
 ```
 
 #### 可视化管理界面设置：
@@ -1514,9 +1526,6 @@ source ~/.bashrc
   Alt+'-'		//Windows
   ```
 + 
-
-
-
 
 ## Anaconda
 
