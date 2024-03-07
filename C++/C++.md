@@ -130,6 +130,17 @@ string::npos就是一个公有的静态的常量类型的成员变量。成员�
 
 String拥有find成员函数，如果找到返回下标，如果找不到返回-1(npos)。
 
+## 基本数据类型
+
+### char、signed char、unsigned char
+
++ 三者都占1个字节。
++ signed char取值范围是 -128 到 127(有符号位)。unsigned char 取值范围是 0 到 255。
++ 内存中一串二进制，它的含义，就是这个类型来说明的。
++ 所谓signed char 和 unsigned char 其实是相对“运算”而说的，已经脱离了我们字面含义“字符”，表示的范围有限。
+
+
+
 ## 其他
 
 Windows点一下回车，效果是回车换行，为\n\r
@@ -753,6 +764,24 @@ SIGPIPE信号的默认行为是结束进程，一般将其
 
 #### pthread_once
 
+保证某一函数在本进程执行序列中仅执行一次。实现方式：Linux Threads 使用互斥锁和条件变量来保证只执行一次。
+
+```
+int pthread_once(pthread_once_t *once_control, void (*init_routine) (void))；
+```
+
++ `once_control`：表示该函数是否执行过。其初值为PTHREAD_ONCE_INIT（Linux Threads定义为0），如果初值为其他，则会出现问题。
++ `init_routine`：指定要执行的函数。
+
+使用范围：
+
++ 某个被多线程调用的模块（但只需创建一次的情况下）使用前的初始化，由于无法判断哪个线程先执行，不知道把初始化代码放在哪的情况。
++ 一般做法是把初始化函数放在main里，创建线程之前来完成，但是如果程序最终不是可执行程序而是编译成库的形式，那么就只能采取该方法。
+
+在Linux Threads中，“一次性函数”的执行状态有是那种：NEVER(0)、IN_PROGRESS(1)、DONE(2)。
+
++ 如果once_control的初值设为1，则由于所有pthread_once()都都会陷入永久的等待中。
++ 如果once_control的初值设为2，则表示该函数已经执行一次，其他pthread_once()都会立即返回0。
 
 #### shared_from_this()
 
@@ -861,7 +890,7 @@ private:
  
 int main()
 {
-	Test1 t1 = 12;	//发射模糊隐式转换
+	Test1 t1 = 12;	//发生模糊隐式转换
 	Test2 t2(13);	//正常构造
 	Test2 t3 = 14;	//报错：无法从“int”转换为“Test2”
 
@@ -869,7 +898,7 @@ int main()
 }
 ```
 
-PS：当类的声明和定义分别在两个文件中时，explicit只能写在声明中，不能卸载定义中。
+PS：当类的声明和定义分别在两个文件中时，explicit只能写在声明中，不能写在定义中。
 
 ### Thread
 
@@ -967,13 +996,18 @@ std::function是一个可调用的对象包装器，通过类实现，在编码�
 
 #### pthread_join
 
+pthread_join()用途：
+
++ 可以用来获取某个线程执行结束时返回的数据。
++ 释放线程资源。对于一个默认属性的线程A来说，线程占用的资源并不会因为执行结束而得到释放，而通过其他线程中执行pthread_join(A, NULL)，可以轻松实现“及时释放线程A所占资源”的目的。
+
 ```
 #include <pthread.h>
 int pthread_join(pthread_t thread, void ** retval);
 ```
 
 + thread参数，用于指定接收哪个线程的返回值
-+ retval参数，存储接收线程结束时的返回值，如果没有返回值或者不需要接收，可以置为NULL
++ retval参数，存储接收线程结束时的返回值，如果没)有返回值或者不需要接收，可以置为NULL
 
 pthread_join()函数会一直阻塞调用它的线程，直到目标线程执行结束（接收到目标线程的返回值），阻塞才会接触。如果成功等到了目标线程执行结束（成功获取到目标线程的返回值），该函数返回值为0；反之如果执行失败会根据失败原因返回非0值，失败原因有：
 
@@ -1076,6 +1110,53 @@ int pthread_cond_broadcast(pthread_cond_t* cond); //唤醒等待该条件的所�
 * **必须注意：** 一定要在改变条件状态以后再给线程发信号。
 
 ![1709623619840](image/C++/1709623619840.png)
+
+### FileUtil
+
+#### fwrite()
+
+将指定数量的字符写入给定的输出流。
+
+```
+size_t fwrite(const void * buffer, size_t size, size_t count, FILE * stream);
+```
+
+* `buffer` ：指向其内容被写入的内存块的指针。
+* `size`：每个对象的大小(以字节为单位)。
+* `count` ：要读取的对象数。
+* `stream` ：要写入数据的文件流。
+* 返回值：返回成功返回写入的对象数。
+
+#### fflush()
+
+函数说明：作用为更新缓冲区。调用fflush()函数会将缓冲区的内容写到stream所指定的文件中去。
+
+```
+#include
+int fflush(FILE *stream);
+```
+
++ `stream`：文件流。若stream为NUL，则会将所有打开的文件进行数据更新。
+
+输入输出缓冲区示例：
+
++ `fflush(stdin)`：刷新标准输入缓冲区，把输入缓冲区里的东西丢弃。一般不用，有些编译器中是错误语法 `while(getchar()!='/n');`代替。
++ `fflus(stdout)`：刷新标准输出缓冲区，把输出缓冲区里的东西强制打印到标准输出设备上。在多进程中作用较大，示例如下：
+
+  ```
+  #include<stdio.h>
+  #include<unistd.h>
+  int main()
+
+      printf("hello");
+      //fflush(stdout);
+      fork();
+      return 0;
+  }
+  ```
+
+  + `printf("hello")`：在fork之前hello还在缓冲区，因此父子进程都会输出hello。而如果加上 `fflus(stdout)`则会在父进程直接输出，子进程不输出。
+  + `printf("hello\n")`：printf打印到标准输出时，终端是行缓存，遇到 `\n` 就将缓存输出，因此只有父进程输出hello
 
 
 # 设计模式
