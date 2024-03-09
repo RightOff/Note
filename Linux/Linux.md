@@ -265,6 +265,18 @@ apt install libnvidia-container-dev libnvidia-container-tools nvidia-container-r
 sudo apt-get install lxd zfsutils-linux bridge-utils
 ```
 
++ LXD实现虚拟化容器。
+  + LXC能够使得进程之间相互隔离，但无法有效支持跨主机之间的容器迁移、管理复杂。
+  + LXD通过虚拟化容器技术来隔离每个人的操作系统，并通过共享文件夹的形式达到多人共用的数据资源。
+  + LXD可以看做是LXC的升级版，两者管理指令大多相同，LXC/LXD容器相互隔离，每个容器中拥有完整且独立的操作系统以及所有权限，但不被允许操作宿主机。
+  + LZD容器可以使用所有资源，包括：CPU、GPU、硬盘盒内存等，与宿主机共用一个内核。
+  + 网络方面每个容器在局域网内都有一个独立的IP地址，可以用SSH直接访问。
+  + 可以创建共享文件夹，将数据集、安装文件等资源进行共享。
+  + 可以安装图形化接麦进行远程操作。
+  + 缺点是显卡驱动不方便更新，宿主机更新驱动，容器也要跟着更新；由于共用内核，一个容器内核出错，所有容器就会受影响。
++ ZFS用于管理物理磁盘，支持LXD高级功能
++ Bridge-utils，用于搭建网桥
+
 查看存储池：
 
 ```
@@ -1525,7 +1537,12 @@ source ~/.bashrc
   Ctrl+Alt+'-'	//ubuntu
   Alt+'-'		//Windows
   ```
-+ 
++ ```
+  Ctrl + shift + f	//输入法简、繁切换
+  ```
+
+
+
 
 ## Anaconda
 
