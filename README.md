@@ -1,1 +1,1 @@
-#  Note backup
+# Study Notes
