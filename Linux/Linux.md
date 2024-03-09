@@ -1541,9 +1541,6 @@ source ~/.bashrc
   Ctrl + shift + f	//输入法简、繁切换
   ```
 
-
-
-
 ## Anaconda
 
 + conda create -n tensorflow python=3.8		//创建虚拟环境
@@ -1577,7 +1574,6 @@ cp /待复制文件的路径  /目标路径
 
 ```
 cp /home/downloads/xampp-linux-x64-7.3.6-0-installer.run /opt/
-
 ```
 
 ### 复制文件夹到文件夹
