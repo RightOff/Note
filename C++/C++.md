@@ -1597,7 +1597,7 @@ git pull <orign> <remote>:<master>	//示例
 
 ### git版本控制原理
 
-![1709454607896](image/Linux/1709454607896.png)
+![1710070192684](image/C++/1710070192684.png)
 
 + 工作区（Working Directory），创建的文件所在的目录就是一个工作区。
 + 版本库，仓库（Repository），工作区有个隐藏目录 .git ，这个不算工作区，而是 Git 的版本库。
