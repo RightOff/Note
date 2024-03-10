@@ -130,6 +130,57 @@ string::npos就是一个公有的静态的常量类型的成员变量。成员�
 
 String拥有find成员函数，如果找到返回下标，如果找不到返回-1(npos)。
 
+### 自定义排序规则
+
+**全局函数指针定义规则**
+
+```
+#include<iostream>
+#include<algorithm>
+using namespace std;
+
+bool cmp(int x,int y){
+	return x < y ;
+}
+
+int main(){
+	int num[10] = {65,59,96,13,21,80,72,33,44,99};
+	sort(num,num+10,cmp);
+	for(int i=0;i<10;i++){
+		cout<<num[i]<<" ";
+	}
+
+	return 0;
+
+} 
+```
+
+请注意：定义的排序函数必须是全局函数，不能写在某个类或其他函数中。
+
+**函数对象定义规则**
+
+```
+struct myclass {
+  bool operator() (int x,int y) 
+  { 
+   return x<y;
+  }
+};
+
+int main(){
+	int num[10] = {65,59,96,13,21,80,72,33,44,99};
+	sort(num,num+10,myclass());
+	for(int i=0;i<10;i++){
+		cout<<num[i]<<" ";
+	}
+
+	return 0;
+
+} 
+```
+
+注意：重载的是()，myclass()表示临时对象，此方法下传入sort的必须是一个函数对象。
+
 ## 基本数据类型
 
 ### char、signed char、unsigned char
@@ -154,8 +205,6 @@ RAII(Resource Acquisition is Initialization)，是C++语言的一种资源管理
 RAII做法是使用一个对象，在其构造时获取对应的资源，在对象生命期内控制对资源的访问，使之始终保持有效，最后在对象析构时，释放构造时获取的资源。
 
 优点：由于系统资源有限，其又不具有自动释放的功能，而C++中的类具有自动调用析构函数的功能。因此，可以把资源用类封装起来，在类构造函数中申请资源，对资源的操作也都封装在内部，在析构函数中释放资源。这样，在需要使用资源时创建该对象进行操作，当该局部变量生命周期结束时，它的析构函数就会被自动调用，资源也就会被自动释放。
-
-
 
 ## 其他
 
@@ -813,8 +862,6 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine) (void))；
 class HttpData : public std::enable_shared_from_this 
 ```
 
-
-
 #### Static
 
 ##### 静态成员变量
@@ -872,7 +919,6 @@ int munmap(void *start, size_t length);
 * 若映射失败，mmap() 返回 MAP_FAILED，其值为(void *)-1，munmap() 返回 -1
 
 #### MIME类型
-
 
 MIME (Multipurpose Internet Mail Extensions) 是描述消息内容类型的标准，用来表示文档、文件或字节流的性质和格式。
 
@@ -1037,7 +1083,6 @@ pthread_join()函数会一直阻塞调用它的线程，直到目标线程执行
 + EINVAL：一种原因是之前已经有线程调用phread_join()函数获取到了目标线程的返回值；另一种是目标线程本身不允许其它线程获取它的返回值。
 + ESRCH：找不到指定的thread线程。
 
-
 ### MutexLock
 
 pthread_mutex是一种基于线程的锁机制，用于保护共享资源，防止多个线程同时访问这些资源的同时进行修改。
@@ -1179,7 +1224,6 @@ int fflush(FILE *stream);
 
   + `printf("hello")`：在fork之前hello还在缓冲区，因此父子进程都会输出hello。而如果加上 `fflus(stdout)`则会在父进程直接输出，子进程不输出。
   + `printf("hello\n")`：printf打印到标准输出时，终端是行缓存，遇到 `\n` 就将缓存输出，因此只有父进程输出hello
-
 
 # 设计模式
 
@@ -1425,9 +1469,6 @@ std::shared_ptr<Singleton> Singleton::getSingleton() {
 }
 ```
 
-
-
-
 # 未解答的疑问
 
 ## C++primer书
@@ -1460,3 +1501,59 @@ while (it != v1.end())
 ```
 gcc -print-search-dirs
 ```
+
+# 工具
+
+## webbench
+
+webbench最多可以模拟3万个并发连接去测试网站的负载能力
+
+1.安装依赖exuberant-ctags
+
+```
+sudo apt-get install exuberant-ctags
+```
+
+2.下载源码并安装
+
+```
+wget http://blog.s135.com/soft/linux/webbench/webbench-1.5.tar.gz  
+tar zxvf webbench-1.5.tar.gz  
+cd webbench-1.5  
+make && sudo make install
+```
+
+3.开始测试
+
+```
+webbench -c 1000 -t 30 --get http://127.0.0.1:80/hello/
+```
+
+其中hello为请求的文件名，会写在http请求行
+
+可选参数信息如下：
+
+```
+webbench [option]... URL
+  -f|--force               Don't wait for reply from server.
+  -r|--reload              Send reload request - Pragma: no-cache.
+  -t|--time <sec>          Run benchmark for <sec> seconds. Default 30.
+  -p|--proxy <server:port> Use proxy server for request.
+  -c|--clients <n>         Run <n> HTTP clients at once. Default one.
+  -9|--http09              Use HTTP/0.9 style requests.
+  -1|--http10              Use HTTP/1.0 protocol.
+  -2|--http11              Use HTTP/1.1 protocol.
+  --get                    Use GET request method.
+  --head                   Use HEAD request method.
+  --options                Use OPTIONS request method.
+  --trace                  Use TRACE request method.
+  -?|-h|--help             This information.
+  -V|--version             Display program version.
+```
+
+结果分析：
+
+![1710068296704](image/C++/1710068296704.png)
+
+Speed：每分钟的处理2658472个请求；每秒的处理数据量：10545276字节
+Requests：处理的请求中成功1329236，失败0
