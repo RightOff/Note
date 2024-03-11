@@ -1225,6 +1225,87 @@ int fflush(FILE *stream);
   + `printf("hello")`：在fork之前hello还在缓冲区，因此父子进程都会输出hello。而如果加上 `fflus(stdout)`则会在父进程直接输出，子进程不输出。
   + `printf("hello\n")`：printf打印到标准输出时，终端是行缓存，遇到 `\n` 就将缓存输出，因此只有父进程输出hello
 
+## CMU15-445/645 Database Systems
+
+## 环境配置
+
+GitHub上创建一个私有库
+
+**项目克隆到本地**
+
+```
+git clone --bare https://github.com/cmu-db/bustub.git bustub-public
+cd bustub-public
+git push git@<github.com:J/CMU15445.git> master //push到自己的远程仓库，记得换成你自己的！
+```
+
+**删除本地克隆，拉去自己的**
+
+```
+cd ..
+rm -rf bustub-public
+git clone git@github.com:J/CMU15445.git # 记得换成你自己的！
+```
+
+**以下用来更新官方文件**
+
+```
+git remote add public https://github.com/cmu-db/bustub.git
+```
+
+**检查是否添加成功**
+
+```
+git remote -v
+```
+
+![1710147099959](image/C++/1710147099959.png)
+
+**build安装包**
+
+```
+sudo build_support/packages.sh
+```
+
+遇到报clang的错可以不管
+
+**更换版本**
+
+2023 Spring
+
+```
+git checkout 32b059b01912f5cf9ced9930b1b02db5b5b8b1a7
+```
+
+**构建项目**
+
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+报 `cannot find -liberty`、`cannot find -lz`错误
+
+```
+sudo apt-get install libiberty-dev
+sudo apt-get install zlib1g-dev
+```
+
+**[gradescope](https://www.gradescope.com/)注册帐号**
+
+课程号填 ~PXWVR5（2022 FALL）~ ，2KJRB5（2023 SPRING），学校填Carnegie Mellon University。
+
+**测试**
+
+```
+cd build
+make check-tests
+```
+
+
+
 # 设计模式
 
 ## 单例模式
