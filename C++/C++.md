@@ -222,6 +222,104 @@ Unix系统下回车以下就是\n
 
 有限状态机（Finite State Machine）是一种理论模型，用于表示、处理具有一定数量状态的系统，用于描述一个系统在有限个特定状态之间的转换。在任何特定时间点，FSM只能处于这些状态中的一个。状态的变更通常由事件（event）或条件触发。回调函数作为状态的响应机制，对特定事件做出反应。
 
+# 网络编程
+
+## I/O多路复用
+
+单线程或单进程同时监测若干个文件描述符是否可执行I/O操作的能力。
+
+### 问题分析
+
+利用多线程、进程来表示执行流，去执行多个事件流，可以做到事件流并发进行。
+
+> 逻辑控制流在时间上的重叠叫做并发。
+
+但多线程/进程的操作会导致额外的成本，主要有：
+
++ 线程/进程的创建成本
++ CPU切换不同线程/进程的成本（context switch）
++ 多线程的资源竞争
+
+因此，如何在单线程/进程中处理事件流，就是I/O多路复用要解决的问题。I/O多路复用解决的本质问题是用更少的资源完成更多的事。
+
+Linux提供的5种I/O处理模型：
+
++ 阻塞I/O
++ 非阻塞I/O
++ I/O多路复用
++ 信号驱动I/O
++ 异步I/O
+
+> 同步IO vs 异步IO
+>
+> 1. 同步IO指的是IO操作会阻塞当前程序的执行，程序会一直阻塞到IO操作完成（如read、write）
+> 2. 异步IO指的是IO操作不会阻塞当前程序的继续执行
+>
+> 因此，以上五种模型中，只有异步IO是完成了数据的全部拷贝流程后才通知应用程序进行处理，没有阻塞的数据读写过程。其它四种均为同步IO。
+
+### 非阻塞I/O
+
+
+### 阻塞I/O
+
+
+### I/O多路复用
+
+#### select
+
+流程图
+
+![1710210280229](image/C++/1710210280229.png)
+
+#### epoll
+
+底层实现：
+
++ 用户调用epoll_create()，会创建eventpoll对象（包含一个红黑树和一个双向链表）
++ 用户调用epoll_ctr()，会对eventpoll中的红黑树结点（epitem对象）进行操作（添加、删除、修改）。
++ 系统会利用epoll_event_callback()管理对象。当有事件被触发时，操作系统调用epoll_event_callback()函数，将对应epitem添加到双向链表中。函数原型为： `int epoll_event_callback(struct eventpoll *ep, int sockid, uint32_t event)`。触发该调用的5中情况有：
+
+  1. 客户端connec()连入，服务器处于SYN_RCVD状态时
+  2. 三次握手完成，服务器处于ESTAB-lished状态时
+  3. 客户端close()断开连接时
+  4. 客户端send/write()数据，服务器可读时
+  5. 服务器可写时
+
+  其中，4、5为epoll中常见的情况。
+
+涉及的数据结构如下：
+
+1、eventpoll
+
+![1710214028486](image/C++/1710214028486.png)
+
+2、epitem
+
+![1710214015910](image/C++/1710214015910.png)
+
+
+
+
+
+IO多路复用效率高的原因：操作系统提供了这样的系统调用（select、poll、epoll），使得原来用户态while循环里的多次系统调用，变成了一次系统调用+内核层遍历这些文件描述符。
+
+### 信号驱动I/O
+
+
+### 异步I/O
+
+
+
+参考链接：
+
+[一文看懂IO多路复用 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/115220699)
+
+[你管这破玩意叫 IO 多路复用？ (qq.com)](https://mp.weixin.qq.com/s?__biz=Mzk0MjE3NDE0Ng==&mid=2247494866&idx=1&sn=0ebeb60dbc1fd7f9473943df7ce5fd95&chksm=c2c5967ff5b21f69030636334f6a5a7dc52c0f4de9b668f7bac15b2c1a2660ae533dd9878c7c&scene=21#wechat_redirect)
+
+[【底层原理】epoll源码分析，还搞不懂epoll的看过来 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/552580039)
+
+
+
 # C++练手项目
 
 ## 实现string类
@@ -1303,6 +1401,8 @@ sudo apt-get install zlib1g-dev
 cd build
 make check-tests
 ```
+
+## part01
 
 
 
