@@ -1535,7 +1535,7 @@ source ~/.bashrc
 + ```
   //VsCode跳转到函数之后返回原来位置
   Ctrl+Alt+'-'	//ubuntu
-  Alt+'-'		//Windows
+  Alt+'<-'		//Windows
   ```
 + ```
   Ctrl + shift + f	//输入法简、繁切换
