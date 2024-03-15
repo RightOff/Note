@@ -1960,6 +1960,30 @@ git reset --hard HEAD^		//版本回退，HEAD表示当前版本，HEAD^表示上
 which git	//查看git的安装地址
 ```
 
+### 忽略指定文件
+
+```
+touch  .gitignore     #创建gitignore隱藏文件  
+vim    .gitignore     #编辑文件，加入指定文件
+```
+
+输入内容示例如下：
+
+```
+# 此为注释 – 将被 Git 忽略
+*.a       # 忽略所有 .a 结尾的文件
+!lib.a    # 但 lib.a 除外
+/TODO     # 仅仅忽略项目根目录下的 TODO 文件，不包括 subdir/TODO
+build/    # 忽略 build/ 目录下的所有文件
+doc/*.txt # 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
+```
+
+如果已经push了，删除本地缓存
+
+```
+git rm -r --cached 文件/文件夹名字
+```
+
 
 ## webbench
 
