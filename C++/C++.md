@@ -156,7 +156,108 @@ int main()
 2. 释放结构化元素（该元素又包含指向动态分配的内存位置的指针），应该先遍历释放子内存位置，最后再释放结构化元素。
 3. 正确处理返回动态分配的内存的引用的函数返回值。
 
+### 内存对齐
 
+**为什幺要内存对齐**：尽管内存是以字节为单位，但是大部分处理器并不是按字节块来存取内存，其一般会以2字节、4字节、8字节等内存存取细粒度来存取。因此，如果没有内存对齐机制，数据可以任意存放，在32位系统上的，一个int变量放在从1开始的地址中，处理器去取数据时，首先会从0地址开始读取一个4字节块，剔除不需要的字节（0地址），然后再从地址4开始读取下一个4字节块，同样剔除不要的字节（4，5，6地址），最后才能将数据合并放入寄存器，这需要很多工作。
+
+#### 内存对齐规则
+
+每个平台的编译器都有自己的默认“**对齐系数**”（也叫对齐模数），gcc中默认 #pragma pack(4)。
+
+**有效对齐值**：是#pragma pack(4)、结构体中最长数据类型长度两者中较大的那个。也叫对齐单位。
+
+**内存对齐规则**：
+
+1. 结构体第一个成员的偏移量（offset）为0，以后每个成员相对于首地址的偏移量都是该成员大小和有效对齐值两者中较小那个的整数倍。如有需要编译器会在成员之间加上填充字。
+2. 结构体的总体大小为**对齐系数**的整数倍，如有需要编译器会在最末一个成员之后填充字节。
+
+在32位系统和 `#pragma pack(2)`下三个结构体的内存分布
+
+![1710560044591](image/C++/1710560044591.png)
+
+#### alignof和 alignas
+
+ `alignof`可以计算出类型的对齐方式，`alignas`可以指定结构体的对齐方式（即指定对齐系数）。
+
+```
+struct alignas(4) Info2 {
+  uint8_t a;
+  uint16_t b;
+  uint8_t c;
+};
+
+std::cout << sizeof(Info2) << std::endl;   // 8  4 + 4
+std::cout << alignof(Info2) << std::endl;  // 4
+```
+
+注意：若 `alignas`小于自然对齐的最小单位，则被忽略。原因参考有效对齐值。
+
+如果想使用单字节对齐的方式，使用 `alignas`是无效的。应该使用 `#pragma pack(push,1)`或者使用 `__attribute__((packed))`。
+
+```
+#if defined(__GNUC__) || defined(__GNUG__)
+  #define ONEBYTE_ALIGN __attribute__((packed))
+#elif defined(_MSC_VER)
+  #define ONEBYTE_ALIGN
+  #pragma pack(push,1)
+#endif
+
+struct Info {
+  uint8_t a;
+  uint32_t b;
+  uint8_t c;
+} ONEBYTE_ALIGN;
+
+#if defined(__GNUC__) || defined(__GNUG__)
+  #undef ONEBYTE_ALIGN
+#elif defined(_MSC_VER)
+  #pragma pack(pop)
+  #undef ONEBYTE_ALIGN
+#endif
+
+std::cout << sizeof(Info) << std::endl;   // 6 1 + 4 + 1
+std::cout << alignof(Info) << std::endl;  // 1
+```
+
+#### 指定成员所占位数
+
+指定结构体中每个成员所占位数
+
+```
+#if defined(__GNUC__) || defined(__GNUG__)
+  #define ONEBYTE_ALIGN __attribute__((packed))
+#elif defined(_MSC_VER)
+  #define ONEBYTE_ALIGN
+  #pragma pack(push,1)
+#endif
+
+/**
+* 0 1   3     6   8 9            15
+* +-+---+-----+---+-+-------------+
+* | |   |     |   | |             |
+* |a| b |  c  | d |e|     pad     |
+* | |   |     |   | |             |
+* +-+---+-----+---+-+-------------+
+*/
+struct Info {
+  uint16_t a : 1;	//指定只占1位
+  uint16_t b : 2;	//指定只占2位
+  uint16_t c : 3;
+  uint16_t d : 2;
+  uint16_t e : 1;
+  uint16_t pad : 7;
+} ONEBYTE_ALIGN;
+
+#if defined(__GNUC__) || defined(__GNUG__)
+  #undef ONEBYTE_ALIGN
+#elif defined(_MSC_VER)
+  #pragma pack(pop)
+  #undef ONEBYTE_ALIGN
+#endif
+
+std::cout << sizeof(Info) << std::endl;   // 共占16位，2字节
+std::cout << alignof(Info) << std::endl;  // 1
+```
 
 ## 容器
 
@@ -246,6 +347,150 @@ RAII做法是使用一个对象，在其构造时获取对应的资源，在对�
 
 优点：由于系统资源有限，其又不具有自动释放的功能，而C++中的类具有自动调用析构函数的功能。因此，可以把资源用类封装起来，在类构造函数中申请资源，对资源的操作也都封装在内部，在析构函数中释放资源。这样，在需要使用资源时创建该对象进行操作，当该局部变量生命周期结束时，它的析构函数就会被自动调用，资源也就会被自动释放。
 
+## 内置函数
+
+### std::async
+
+普通线程创建方法：
+
+```
+void f(int n)
+std::thread t(f,n+1);
+t.join();
+```
+
+普通创建方法如果想获取线程函数返回的结果时需要先定义一个变量，在线程函数中给其赋值，然后join，最后得到结果。
+
+而异步接口std::async会自动创建一个线程去调用线程函数，它返回一个std::future，这个future中存储了线程函数返回的结果，当我们需要线程函数的结果时，直接从future中获取，非 常方便。函数原型如下：
+
+```
+template <class Fn, class... Args>
+future<typename result_of<Fn(Args...)>::type> async (launch policy, Fn&& fn, Args&&... args);
+```
+
++ launch policy：
+  + `std::launch::async` ：保证行为是异步的 - 传入函数在单独的线程中执行；
+  + `std::launch::deferred` ：行为是非异步的 - 会在其他线程调用 future 的 `get()` 时被调用传入的回调函数
+  + `std::launch::async | std::launch::deferred` ：程序会根据系统情况自动决定是同步还是异步，开发者无法手动控制。
++ Fn&& fn ：线程执行的函数。
++ Args&&... args：执行函数的参数。
++ 返回值：返回一个 `std::future<T>`，存储 `std::async()` 调用的函数对象的返回值。
+
+使用示例：
+
+```
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <thread>
+#include <future>
+
+using namespace std::chrono;
+
+std::string fetchDataFromDB(std::string recvdData)
+{
+    // 模拟耗时的数据库查询操作，让该函数运行五秒
+    std::this_thread::sleep_for(seconds(5));
+
+    return "DB_" + recvdData;
+}
+
+std::string fetchDataFromFile(std::string recvdData)
+{
+    // 模拟耗时的本地数据读取操作，让该函数运行五秒
+    std::this_thread::sleep_for(seconds(5));
+
+    return "File_" + recvdData;
+}
+
+int main()
+{
+    // 获取开始时间
+    system_clock::time_point start = system_clock::now();
+
+    std::future<std::string> resultFromDB = std::async(std::launch::async, fetchDataFromDB, "Data");
+
+    // 从本地文件获取数据
+    std::string fileData = fetchDataFromFile("Data");
+
+    // 从数据库获取数据
+    // 代码会在此处阻塞，直到 future<std::string> 对象中的数据就绪
+    std::string dbData = resultFromDB.get();
+
+    // 获取结束时间
+    auto end = system_clock::now();
+
+    auto diff = duration_cast < std::chrono::seconds > (end - start).count();
+    std::cout << "总耗时 = " << diff << " 秒" << std::endl;
+
+    // 混合数据
+    std::string data = dbData + " :: " + fileData;
+
+    // 打印混合数据
+    std::cout << "Data = " << data << std::endl;
+
+    return 0;
+}
+```
+
+**内部具体操作**，std::async先将异步操作用std::packaged_task包装起来，然后将异步操作的结果放到std::promise中，这个过程就是创造未来的过程。外面再通过future.get/wait来获取这个未来的结果。
+
+#### std::future
+
+其中存储了线程函数返回的结果，可以通过查询future的状态（future_status）。future_status有三种状态：
+
++ deferred：异步操作还没开始；
++ ready：异步操作已经完成；
++ timeout：异步操作超时。
+
+示例如下：
+
+```
+do {
+        std::future_status status = future.wait_for(std::chrono::seconds(1));
+        if (status == std::future_status::deferred) {
+            std::cout << "deferred\n";
+        } else if (status == std::future_status::timeout) {
+            std::cout << "timeout\n";
+        } else if (status == std::future_status::ready) {
+            std::cout << "ready!\n";
+        }
+} while (status != std::future_status::ready);
+```
+
+获取future结果的方式：
+
++ get：等待异步操作结束并返回结果；
++ wait：等待异步操作完成，没有返回值；
++ wait_for：超时等待返回结果。
+
+#### std::promise
+
+在线程函数中给外面传来的promise赋值，其取值也是间接的通过promise内部提供的future来获取的。示例如下：
+
+```
+std::promise<int> pr;
+    std::thread t([](std::promise<int>& p){ p.set_value_at_thread_exit(9); },std::ref(pr)); //std::ref(pr)表示pr的引用
+    std::future<int> f = pr.get_future();
+    auto r = f.get();
+```
+
+#### std::packaged_task
+
+包装一个可调用的目标（如function、lambda expression、bind expression、or another function object），以便异步调用。与promise相似，不过promise保存了一个共享状态的值，pacakged_task保存的是一个函数。示例如下：
+
+```
+    std::packaged_task<int()> task([](){ return 7; });
+    std::thread t1(std::ref(task)); 
+    std::future<int> f1 = task.get_future(); 
+    auto r1 = f1.get();
+```
+
+
+[深入浅出 c++11 std::async - 程远春 - 博客园 (cnblogs.com)](https://www.cnblogs.com/chengyuanchun/p/5394843.html)
+
+[C++ 11 多线程 (9) - std::async 教程及示例 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/633462603)
+
 ## 其他
 
 ### \n\t
@@ -299,9 +544,7 @@ Linux提供的5种I/O处理模型：
 
 ### 非阻塞I/O
 
-
 ### 阻塞I/O
-
 
 ### I/O多路复用
 
@@ -337,18 +580,11 @@ Linux提供的5种I/O处理模型：
 
 ![1710214015910](image/C++/1710214015910.png)
 
-
-
-
-
 IO多路复用效率高的原因：操作系统提供了这样的系统调用（select、poll、epoll），使得原来用户态while循环里的多次系统调用，变成了一次系统调用+内核层遍历这些文件描述符。
 
 ### 信号驱动I/O
 
-
 ### 异步I/O
-
-
 
 参考链接：
 
@@ -357,8 +593,6 @@ IO多路复用效率高的原因：操作系统提供了这样的系统调用（
 [你管这破玩意叫 IO 多路复用？ (qq.com)](https://mp.weixin.qq.com/s?__biz=Mzk0MjE3NDE0Ng==&mid=2247494866&idx=1&sn=0ebeb60dbc1fd7f9473943df7ce5fd95&chksm=c2c5967ff5b21f69030636334f6a5a7dc52c0f4de9b668f7bac15b2c1a2660ae533dd9878c7c&scene=21#wechat_redirect)
 
 [【底层原理】epoll源码分析，还搞不懂epoll的看过来 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/552580039)
-
-
 
 # C++练手项目
 
@@ -1404,7 +1638,6 @@ int fflush(FILE *stream);
 
 [web服务器项目常见面试题目（C++）_webserver面试-CSDN博客](https://blog.csdn.net/weixin_47887421/article/details/125838311)
 
-
 ## CMU15-445/645 Database Systems
 
 ### 环境配置
@@ -1485,8 +1718,6 @@ make check-tests
 ```
 
 ### part01
-
-
 
 # 设计模式
 
@@ -1738,7 +1969,6 @@ std::shared_ptr<Singleton> Singleton::getSingleton() {
 
 ### 工厂模式
 
-
 工厂模式适用于大量的产品需要创建，并且这些产品具有共同的接口。
 
 **大致分为3类：**
@@ -1750,11 +1980,8 @@ std::shared_ptr<Singleton> Singleton::getSingleton() {
 **工厂模式的使用选择：**
 
 + 简单工厂 ： 用来生产同一等级结构中的任意产品。（不支持拓展增加产品）
-
 + 工厂方法 ：用来生产同一等级结构中的固定产品。（支持拓展增加产品）
-
 + 抽象工厂 ：用来生产不同产品族的全部产品。（支持拓展增加产品；支持增加产品族）
-
 
 ## 行为型模式
 
@@ -1766,18 +1993,16 @@ std::shared_ptr<Singleton> Singleton::getSingleton() {
 
 何时使用：一个对象（目标对象）的状态发生改变，所有的依赖对象（观察者对象）都将得到通知，进行广播通知。
 
-**优点：** 
+**优点：**
 
 1. 察者和被观察者是抽象耦合的。
-
 2. 建立一套触发机制。
 
-**缺点：** 
+**缺点：**
 
 1. 如果一个被观察者对象有很多的直接和间接的观察者的话，将所有的观察者都通知到会花费很多时间
 2. 如果在观察者和观察目标之间有循环依赖的话，观察目标会触发它们之间进行循环调用，可能导致系统崩溃。
 3. 观察者模式没有相应的机制让观察者知道所观察的目标对象是怎么发生变化的，而仅仅只是知道观察目标发生了变化。
-
 
 # 未解答的疑问
 
@@ -1983,7 +2208,6 @@ doc/*.txt # 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
 ```
 git rm -r --cached 文件/文件夹名字
 ```
-
 
 ## webbench
 
