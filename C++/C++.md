@@ -341,7 +341,7 @@ int main(){
 
 ### RAII机制
 
-RAII(Resource Acquisition is Initialization)，是C++语言的一种资源管理、避免内存泄露的惯用方法。利用C++构造的对象最终会被销毁的原则。
+RAII(Resource Acquisition is Initialization)，是C++语言的一种资源管理、避免内存泄露的惯用方法。利用C++构造的对象最终会被销毁的原则。使用局部对象来管理资源的技术称为资源获取即初始化。
 
 RAII做法是使用一个对象，在其构造时获取对应的资源，在对象生命期内控制对资源的访问，使之始终保持有效，最后在对象析构时，释放构造时获取的资源。
 
@@ -361,7 +361,7 @@ t.join();
 
 普通创建方法如果想获取线程函数返回的结果时需要先定义一个变量，在线程函数中给其赋值，然后join，最后得到结果。
 
-而异步接口std::async会自动创建一个线程去调用线程函数，它返回一个std::future，这个future中存储了线程函数返回的结果，当我们需要线程函数的结果时，直接从future中获取，非 常方便。函数原型如下：
+而异步接口std::async会自动创建一个线程去调用线程函数，它返回一个std::future，这个future中存储了线程函数返回的结果，当我们需要线程函数的结果时，直接从future中获取，非常方便。函数原型如下：
 
 ```
 template <class Fn, class... Args>
@@ -485,7 +485,6 @@ std::promise<int> pr;
     std::future<int> f1 = task.get_future(); 
     auto r1 = f1.get();
 ```
-
 
 [深入浅出 c++11 std::async - 程远春 - 博客园 (cnblogs.com)](https://www.cnblogs.com/chengyuanchun/p/5394843.html)
 
@@ -2027,7 +2026,6 @@ std::shared_ptr<Singleton> Singleton::getSingleton() {
 + **信号**：见进程
 
 线程间的通信往往用于线程同步，因此是没有像进程通信中用于数据交换的通信机制，其实也不需要类似通信机制，因为线程间可借助它们共享的进程内存进行数据交换。
-
 
 # 未解答的疑问
 

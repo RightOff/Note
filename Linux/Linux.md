@@ -1,5 +1,3 @@
-
-
 # Ubuntu20.04安装
 
 ## 报错合集
@@ -230,12 +228,14 @@ nvcc -V
 
 ```
 dpkg -i libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
+sudo dpkg -i libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb //可选
 ```
 
 检查是否安装成功
 
 ```
 dpkg -l | grep cudnn
+ls /usr/include/cudnn*.h //可选
 ```
 
 ### 安装nvidia-container-runtime
