@@ -92,6 +92,10 @@ sudo dkms install -m nvidia -v 535.113.01
 /etc/apt/sources.list.d# rm nvidia-container-toolkit.list
 ```
 
+### 容器中网络无法连接
+
+重新配置网桥 sudo lxd init
+
 ## 安装步骤
 
 ### 系统文件制作
@@ -1542,6 +1546,13 @@ source ~/.bashrc
 + ```
   Ctrl + shift + f	//输入法简、繁切换
   ```
++ ```
+  ls a*	//显示当前目录下以a为前缀的所有文件
+  rm -rf a*  //删除当前目录下以a为前缀的所有文件
+  ```
++ ```
+  命令模式下按"yy",在按"p"  //复制某一行 
+  ```
 
 ## Anaconda
 
@@ -1612,3 +1623,60 @@ cp -r tired_driver    /root/yolov5\ search/
 $$
 \text{Contribution\ Ratio} = \frac{\text{Explained Variance}}{\text{Total Variance}}
 $$
+
+## Clash
+
+解压压缩包Clash.for.Windows-0.17.1-x64-linux.tar.gzspan
+
+```
+./cfw --no-sandbox	//打开即可
+```
+
+## OnnxRuntime
+
+| ONNX Runtime | CUDA   | cuDNN |
+| ------------ | ------ | ----- |
+| 1.9          | 11.4.4 | 8.2.4 |
+
+### cudnn下载复制
+
+![1712494775079](image/Linux/1712494775079.png)
+
+下载后复制到cuda-11.4中
+
+```
+sudo cp cuda/include/cudnn.h /usr/local/cuda-10.1/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.1/lib64
+sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h 
+sudo chmod a+r /usr/local/cuda-10.1/lib64/libcudnn*
+```
+
+### 下载、编译onnxruntime
+
+```
+git clone --recursive https://github.com/Microsoft/onnxruntime
+cd onnxruntime/
+git checkout v1.8.0
+```
+
+编译：
+
+```
+./build.sh --skip_tests --use_cuda --config Release --build_shared_lib --parallel --cuda_home /usr/local/cuda-11.3 --cudnn_home /usr/local/cuda-11.3
+```
+
+其中的 `use_cuda`表示你要使用CUDA的onnxruntime，`cuda_home`和 `cudnn_home`均指向你的CUDA安装目录即可。
+
+编译成功如下：
+
+```
+[100%] Linking CXX executable onnxruntime_test_all
+[100%] Built target onnxruntime_test_all
+[100%] Linking CUDA shared module libonnxruntime_providers_cuda.so
+[100%] Built target onnxruntime_providers_cuda
+2022-03-15 13:49:03,260 util.run [DEBUG] - Subprocess completed. Return code: 0
+2022-03-15 13:49:03,260 build [INFO] - Build complete
+
+```
+
+项目中可能会

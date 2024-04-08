@@ -15,7 +15,6 @@ conda activate yolov5
 
 ### 创建数据集.yaml
 
-
 ### 创建标签
 
 每个图像一个文件（如果图像中没有对象，则不需要文件）。文件规范为：`*.txt``*.txt``*.txt`
@@ -30,7 +29,6 @@ conda activate yolov5
 修改数据集中的文件 train.txt、val.txt (两者均为指定数据资源所在位置的文件)：修改数据资源所在的绝对路径
 
 /yolov5/data 添加tired.yaml（在yolov5中指明所训练数据集相关信息）
-
 
 ## 选择型号
 
@@ -113,8 +111,7 @@ python train.py --data custom.yaml --weights '' --cfg yolov5s.yaml
 * **Epoch :** 从300开始，如果过早出现过度拟合，可减小epoch值；如果在300个epoch之后没有发生过拟合，则增加迭代次数到600、1200等。
 * **Image size:** ***COCO在原生分辨率下训练，尽管由于数据集中有大量的小对象，它可以从更高分辨率的训练中受益，例如。如果有许多小对象，那么自定义数据集将受益于原生或更高分辨率的训练。最好的推理结果是在训练运行时获得的，即在训练的同时进行测试和检测。***
 
-    `--img 640``--img 1280``--img``--img 1280``--img 1280`
-
+  `--img 640``--img 1280``--img``--img 1280``--img 1280`
 * **Batch size :** 在硬件设备允许的情况下尽可能的调大参数，小的batch size 会导致较差的统计数据
 * **Hyperparameters :** 首先用默认的超参数训练，然后考虑修改超参数。通常大幅增加超参数将减少和延迟过拟合，从而实现更长的训练和更高的最终 mAP。调整超参数将有助于减少某些特定损失函数的过拟合。
 
@@ -189,7 +186,6 @@ model = torch.hub.load('ultralytics/yolov5', 'yolov5s', classes=10)
 ```
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', force_reload=True)  # force reload
 ```
-
 
 # 四、多GPU训练
 
