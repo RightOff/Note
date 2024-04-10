@@ -4,7 +4,7 @@
 
 ### Word 转 PDF后目录中显示：错误未定义书签
 
-全选后按住ctrl+F11或者Ctrl+Shift+F9即可。
+全选后按住ctrl+F11或者Ctrl+Shift+F9即可
 
 ![1684374518503](image/Windows操作/1684374518503.png)
 
