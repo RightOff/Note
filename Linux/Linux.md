@@ -1656,7 +1656,7 @@ sudo chmod a+r /usr/local/cuda-10.1/lib64/libcudnn*
 ```
 git clone --recursive https://github.com/Microsoft/onnxruntime
 cd onnxruntime/
-git checkout v1.8.0
+git checkout v1.9.0
 ```
 
 编译：
@@ -1681,9 +1681,11 @@ git checkout v1.8.0
 
 项目中可能会
 
-## Windows下安装WSL
+## WSL安装
 
 详见[超详细WSL搭建教程，包含图形化界面安装、解决内存占用大的问题_wsl图形化界面-CSDN博客](https://blog.csdn.net/cepengyuan/article/details/116006481)
+
+安装的是microsoft中的Ubuntu 20.04.6
 
 ### 注意事项
 
@@ -1691,7 +1693,7 @@ git checkout v1.8.0
 
 改国内源时采用以下方法
 
-先备份`cp /etc/apt/sources.list /etc/apt/sources.list_copy`
+先备份 `cp /etc/apt/sources.list /etc/apt/sources.list_copy`
 
 将以下代码拷贝到文件中去
 
@@ -1709,4 +1711,26 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted 
 # 预发布软件源，不建议启用
 # deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
+```
+
+#### 文件互访
+
+windows中输入 `\wsl$`直接进入
+
+### 驱动安装
+
+现在windows下安装Nvidia驱动
+
+在wsl中，输入以下命令安装依赖包即可。
+
+```
+sudo apt install nvidia-cuda-toolkit
+```
+
+在wsl中：
+
+```
+nvcc -V		//确定是否安装
+nvidia-smi	//查看显卡信息
+
 ```
