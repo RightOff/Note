@@ -94,7 +94,7 @@ sudo dkms install -m nvidia -v 535.113.01
 
 ### 容器中网络无法连接
 
-重新配置网桥 sudo lxd init
+重新配置网桥 `sudo lxd init`
 
 ## 安装步骤
 
@@ -1645,6 +1645,9 @@ $$
 下载后复制到cuda-11.4中
 
 ```
+mv cudnn-11.4-linux-x64-v8.2.4.15.solitairetheme8 cudnn-11.4-linux-x64-v8.2.4.15.tgz	//修改文件名
+tar -xvf cudnn-11.4-linux-x64-v8.2.4.15.tgz	//解压
+
 sudo cp cuda/include/cudnn.h /usr/local/cuda-10.1/include
 sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.1/lib64
 sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h 
