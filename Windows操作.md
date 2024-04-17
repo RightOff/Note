@@ -454,3 +454,154 @@ rdpclip.exe	//重新启动进程
 ![1708922447714](image/Windows操作/1708922447714.png)
 
 ![1708922470486](image/Windows操作/1708922470486.png)
+
+## windows下cmake
+
+下载安装cmake和make，用powershell进行编译，cmake每一次都需要加参数 `-G “MinGW Makefiles”`
+
+```
+cmake .. -G “MinGW Makefiles”
+make
+```
+
+其中，“..”为上一级目录的意思，因为我们的CMakeLists.txt在上一级目录，而”MinGW Makefiles“是指定编译器的意思，由于在Windows下，CMake默认生成VS的编译文件，因此我们需要指定编译器。
+
+### 项目目录结构（多平台通用）
+
+```
+MyApp/
+  ├─ CMakeLists.txt
+  ├─ src/
+  │   └─ main.cpp
+  ├─ include/
+  │   ├─ static_lib/
+  │   │   └─ StaticLibHeader.h
+  │   └─ dynamic_lib/
+  │       └─ DynamicLibHeader.h
+  ├─ libs/
+  │   ├─ static/
+  │   │   └─ libStatic.lib
+  │   └─ dynamic/
+  │       ├─ libDynamic.dll
+  │       └─ libDynamic.lib
+  ├─ subproject/
+  │   ├─ CMakeLists.txt
+  │   ├─ src/
+  │   │   └─ subproject_main.cpp
+  │   └─ include/
+  │       └─ subproject/
+  │           └─ SubProjectHeader.h
+  └─ config.h.in
+```
+
+详细介绍：
+
+1. **根目录** ：包含主项目的 `CMakeLists.txt` 文件以及用于在构建时生成配置文件的 `config.h.in` 文件。
+2. **src** ：存放项目源代码的目录，这里只有一个 `main.cpp` 文件作为示例。
+3. **include** ：包含头文件的目录。这里有两个子目录，一个是 `static_lib`，包含静态库的头文件 `StaticLibHeader.h`；另一个是 `dynamic_lib`，包含动态库的头文件 `DynamicLibHeader.h`。
+4. **libs** ：存放静态库和动态库的目录。这里有两个子目录：`static` 和 `dynamic`。`static` 目录中包含一个名为 `libStatic.lib` 的静态库，`dynamic` 目录中包含一个名为 `libDynamic.dll` 的动态库以及其导入库 `libDynamic.lib`。
+5. **subproject** ：一个子项目的目录，包含自己的 `CMakeLists.txt` 文件、源代码（`subproject_main.cpp`）以及头文件（`SubProjectHeader.h`）。
+
+### CMakeList脚本示例
+
+```
+# 设置 CMake 最低版本要求
+cmake_minimum_required(VERSION 3.8)
+# 定义项目名称和版本
+project(MyApp VERSION 1.0.0 LANGUAGES CXX)
+
+# 设置 C++ 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# 定义用户可配置的选项
+option(ENABLE_DEBUG "Enable debug output" ON)
+
+if(ENABLE_DEBUG)
+  add_definitions(-DDEBUG_OUTPUT)
+endif()
+
+# 自定义宏：添加 MSVC 常用编译选项
+macro(add_msvc_options target)
+  if(MSVC)
+    target_compile_options(${target} PRIVATE
+    /W4                # 设置警告级别为 4
+    /WX                # 将警告视为错误
+    /MP                # 启用多处理器编译
+    /permissive-       # 禁用不严格的语言 conformance
+    /Zc:__cplusplus    # 启用正确的 __cplusplus 宏值
+    /Zc:inline         # 移除未使用的函数
+    /Gm-               # 禁用最小生成（minimal rebuild）
+    /EHsc              # 指定异常处理模型
+    )
+  endif()
+endmacro()
+
+# 添加源文件
+set(SOURCE_FILES src/main.cpp)
+
+# 生成可执行文件
+add_executable(MyApp ${SOURCE_FILES})
+
+# 调用自定义宏，为 MyApp 添加 MSVC 常用编译选项
+add_msvc_options(MyApp)
+
+# 为特定目标设置头文件目录
+target_include_directories(MyApp PRIVATE include)
+
+# 链接静态库
+find_library(STATIC_LIB libStatic.lib PATHS "${CMAKE_SOURCE_DIR}/libs/static")
+target_link_libraries(MyApp PRIVATE ${STATIC_LIB})
+
+# 链接动态库
+find_library(DYNAMIC_LIB libDynamic.dll PATHS "${CMAKE_SOURCE_DIR}/libs/dynamic")
+find_library(DYNAMIC_LIB_IMPORT libDynamic.lib PATHS "${CMAKE_SOURCE_DIR}/libs/dynamic")
+target_link_libraries(MyApp PRIVATE ${DYNAMIC_LIB_IMPORT})
+
+# 使用 Windows 的 DLL delay-load 机制
+set_target_properties(MyApp PROPERTIES LINK_FLAGS "/DELAYLOAD:libDynamic.dll")
+
+# 根据目标架构定制编译选项和链接选项
+if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
+  message("Building for Win32 (x86) architecture")
+  target_compile_options(MyApp PRIVATE /arch:SSE2)
+elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
+  message("Building for x64 architecture")
+  target_compile_options(MyApp PRIVATE /arch:AVX2)
+else()
+  message(WARNING "Unknown architecture")
+endif()
+
+# 添加子项目
+add_subdirectory(subproject)
+
+# 在构建时生成配置文件
+configure_file(config.h.in config.h @ONLY)
+
+# 指定安装规则
+install(TARGETS MyApp RUNTIME DESTINATION bin)
+install(FILES "${CMAKE_SOURCE_DIR}/libs/dynamic/libDynamic.dll" DESTINATION bin)
+```
+
+### 跨平台构建
+
+`CMakeLists.txt`文件示例，以下if判断方法无法在windows上通过make（跨平台构建需要进一步探索）？？
+
+```
+cmake_minimum_required(VERSION 3.10)
+
+project(my_project)
+
+if(WIN32)
+    set(CMAKE_CXX_COMPILER "MSVC")
+elseif(UNIX)
+    set(CMAKE_CXX_COMPILER "g++")
+endif()
+
+set(CMAKE_CXX_STANDARD 11)
+
+add_executable(hello hello.cpp)
+```
+
+使用if语句来判断平台类型，并设置相应的编译器。通过这种方式，可以实现在不同平台下都可以编译和构建项目的目的。
