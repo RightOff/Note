@@ -962,6 +962,7 @@ conda config --remove-key channels
 # Windows
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
 
+# Linux
 //使用新版torch,旧版1.12.0会导致训练时无法使用多线程载入数据集
 conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
 
