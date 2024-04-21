@@ -951,9 +951,9 @@ conda activate clh
 换国内源：
 
 ```
-pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-//ps:清空源
+//一定要先清空源
 conda config --remove-key channels
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 安装pytorch：
@@ -1343,7 +1343,7 @@ python tools/demo.py image -f exps/example/yolox_voc/yolox_voc_s.py -c YOLOX_out
 //若想进行视频预测，只需将下面的 image 更换为 video；
 //若想预测整个文件夹，将.jpg去掉，只留 --path assets/
 
-## mmdetection（无法运行）
+## mmdetection
 
 创建虚拟环境
 
@@ -1355,30 +1355,23 @@ conda activate oenmmlab
 换国内源：
 
 ```
-pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-//ps:清空源
+//一定要先清空源
 conda config --remove-key channels
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 安装pytorch：
 
 ```
-pip install torch==1.8.1+cu101 torchvision==0.9.1+cu101 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
-```
-
-安装mmdet
-
-```
-pip install -U openmim
-mim install mmcv-full
+conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
 ```
 
 使用 MIN安装 MMEngine和 MMVC
 
 ```
 pip install -U openmim
-mim install mmengine
-mim install "mmcv>=2.0.0"
+mim install mmengine==0.7.1
+mim install "mmcv>=2.0.0"	//实际安装的是2.1.0
 ```
 
 安装 MMDetection
@@ -1391,8 +1384,35 @@ pip install -v -e .
 # "-v" means verbose, or more output
 # "-e" means installing a project in editable mode,
 # thus any local modifications made to the code will take effect without reinstallation.
+```
+
+验证安装
 
 ```
+//下载配置和检查文件
+mim download mmdet --config bytetrack_yolox_x_8xb4-amp-80e_crowdhuman-mot17halftrain_test-mot17halfval --dest .
+
+//可能遇到TypeError: FormatCode() got an unexpected keyword argument ‘verify‘错误，降低yapf版本
+pip uninstall yapf
+pip install yapf==0.40.1
+
+//验证
+python demo/mot_demo.py demo/demo_mot.mp4 bytetrack_yolox_x_8xb4-amp-80e_crowdhuman-mot17halftrain_test-mot17halfval.py --checkpoint bytetrack_yolox_x_crowdhuman_mot17-private-half_20211218_205500-1985c9f0.pth --out mot.mp4
+
+//可能会遇到有些包未安装
+pip install lap
+pip install seaborn
+```
+
+### 训练自己的数据集
+
+在 mmdetection/mmdet/datasets/__init__.py 中添加代码
+
+```
+from .fire import fireDataset
+```
+
+
 
 下载配置文件和模型权重文件。
 
@@ -1553,6 +1573,9 @@ source ~/.bashrc
   ```
 + ```
   命令模式下按"yy",在按"p"  //复制某一行 
+  ```
++ ```
+  find ./ -name filename //在指定路径查找文件
   ```
 
 ## Anaconda
@@ -1736,5 +1759,11 @@ sudo apt install nvidia-cuda-toolkit
 ```
 nvcc -V		//确定是否安装
 nvidia-smi	//查看显卡信息
+```
 
+### 安装播放器
+
+```
+//安装smplayer视频播放器。
+sudo apt-get  install  smplayer
 ```
