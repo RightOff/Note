@@ -1404,15 +1404,13 @@ pip install lap
 pip install seaborn
 ```
 
-### 训练自己的数据集
+### 训练自己的数据集(暂不可用)
 
 在 mmdetection/mmdet/datasets/__init__.py 中添加代码
 
 ```
 from .fire import fireDataset
 ```
-
-
 
 下载配置文件和模型权重文件。
 
