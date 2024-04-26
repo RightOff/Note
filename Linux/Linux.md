@@ -1620,6 +1620,34 @@ cp  -r /home/downloads/phpcms_v9_UTF8/install_package/    /opt/lampp/htdocs/
 cp -r tired_driver    /root/yolov5\ search/
 ```
 
+
+
+# 问题解决
+
+## 找不到包
+
+换源
+
+先备份 `/etc/apt/sources.list`文件，然后更改 `/etc/apt/sources.list`中的内容如下：
+
+```
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+```
+
+更新源：
+
+```
+sudo apt-get update
+```
+
+
 # 其他
 
 ## pytorch 如何使用cuda
