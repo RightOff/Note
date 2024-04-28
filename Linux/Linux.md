@@ -1620,33 +1620,7 @@ cp  -r /home/downloads/phpcms_v9_UTF8/install_package/    /opt/lampp/htdocs/
 cp -r tired_driver    /root/yolov5\ search/
 ```
 
-
-
 # 问题解决
-
-## 找不到包
-
-换源
-
-先备份 `/etc/apt/sources.list`文件，然后更改 `/etc/apt/sources.list`中的内容如下：
-
-```
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
-```
-
-更新源：
-
-```
-sudo apt-get update
-```
-
 
 # 其他
 
@@ -1792,4 +1766,56 @@ nvidia-smi	//查看显卡信息
 ```
 //安装smplayer视频播放器。
 sudo apt-get  install  smplayer
+```
+
+## ubuntu20.04(Hyper V)
+
+[在Hyper-V上安装Ubuntu20.04虚拟机—超级详细，小白简单上手 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/664484623)
+
+### 找不到包
+
+换源
+
+先备份 `/etc/apt/sources.list`文件，然后更改 `/etc/apt/sources.list`中的内容如下：
+
+```
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+```
+
+如果没有编辑器vim，可以先在其他文件夹（如/home/`<usrname>`/download下完成配置文件，然后复制过去。
+
+```
+cp sources.list /etc/apt/sources.list
+```
+
+更新源：
+
+```
+sudo apt-get update
+sudo apt-get upgrade
+```
+
+### 安装gparted
+
+```
+sudo apt-get install gparted
+```
+
+### 安装ssh
+
+```
+apt-get install openssh-client=1:7.6p1-4	//根据报错要求的信息
+apt install openssh-server
+```
+
+```
+dpkg -l |grep ssh	//验证是否安装
+ps -e |grep ssh		//验证是否运行
 ```
