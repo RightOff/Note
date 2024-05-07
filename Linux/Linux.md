@@ -1808,6 +1808,17 @@ sudo apt-get upgrade
 sudo apt-get install gparted
 ```
 
+### 安装Vim报错
+
+vim安装时报错，“Depends:vim-common (=2:7.4.1689-3ubuntu1.4) but 2:8.0.1453-1ubuntu1.1 is to be installed”
+
+```
+sudo apt-get purge vim-common
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install vim
+```
+
 ### 安装ssh
 
 ```
@@ -1818,4 +1829,45 @@ apt install openssh-server
 ```
 dpkg -l |grep ssh	//验证是否安装
 ps -e |grep ssh		//验证是否运行
+```
+
+### 配置GPU(未成功)
+
+先升级windows的pwsh
+
+```
+Get-VM	//获取虚拟机列表
+//注意下边需要带双引号
+Set-VM -VMName "Ubuntu 20.04 LTS" -GuestControlledCacheTypes $true -LowMemoryMappedIoSpace 1GB -HighMemoryMappedIoSpace 32GB
+Add-VMGpuPartitionAdapter -VMName "Ubuntu 20.04 LTS"
+```
+
+打开虚拟机并执行 `lspci` 命令，检查 GPU-PV 设备是否已经成功安装
+
+如果输出中包含 `b98b:00:00.0 3D controller: Microsoft Corporation Basic Render Driver`，则说明已正确安装设备
+
+进入 WSL 的终端，运行命令：
+
+```
+tar -cvf - /usr/lib/wsl | zstd -T0 > drivers.tzst
+```
+
+安装其他工具
+
+```
+sudo apt install zstd
+```
+
+拷贝到Hyper-V虚拟机根目录
+
+```
+unzstd drivers.tzst
+tar xvf drivers.tar
+```
+
+然后复制驱动到 `/lib`：
+
+```
+cp </usr/lib/wsl/lib>/* /usr/lib
+cp /usr/lib/wsl/lib/nvidia-smi /usr/bin	//N卡需要该步骤
 ```
