@@ -76,6 +76,23 @@ sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 
 方法2：
 
+查看内核版本
+
+```
+uname -r	//输出：5.15.0-107-generic
+sudo vim /etc/default/grub
+```
+
+降低版本：GRUB_DEFAULT=0改为GRUB_DEFAULT = "Ubuntu，Linux 5.15.0-101-generic"
+
+```
+sudo update-grub
+reboot	//重启
+uname -r	//输出：5.15.0-105-generic
+```
+
+方法3：
+
 ```
 ls /usr/src | grep nvidia
 //输出：nvidia-535.113.01
@@ -83,6 +100,7 @@ ls /usr/src | grep nvidia
 sudo apt-get install dkms
 sudo dkms install -m nvidia -v 535.113.01
 ```
+
 
 ### E: Conflicting values set for option Signed-By regarding source
 
@@ -607,6 +625,7 @@ free -m
 zfs list
 lxc stop --all //关闭所有容器
 lxc start --all //开启所有容器
+lxc restart --all //开启所有容器
 ```
 
 #### 可视化管理界面设置：
@@ -1621,6 +1640,45 @@ cp -r tired_driver    /root/yolov5\ search/
 ```
 
 # 问题解决
+
+## 中CPU高占用率病毒
+
+通过 `crontab -l` 查看是否有可疑的计划任务。如下所示：
+
+```
+* * * * * /var/tmp/.cache/upd >/dev/null 2>&1
+```
+
+1. **频率** ：`* * * * *` 指的是每分钟运行一次，这是最高频率的 cron 设置。
+2. **命令位置** ：位于 `/var/tmp/.cache/`，这是一个不寻常的位置用于存放执行脚本，因为 `/var/tmp/` 可以被任何用户访问，并且通常用于存放长时间保留的临时文件。
+3. **隐藏性** ：文件名 `.cache` 前的点（`.`）使得它在普通的 `ls` 命令中不可见，这可能是为了隐藏其存在。
+4. **输出重定向** ：将输出重定向到 `/dev/null` 可能是为了隐藏执行过程中可能产生的任何输出或错误，这是一个常见的技术，用来保持程序的隐蔽性。
+
+根据路径删除相关文件。
+
+再使用 `crontab -e` 打开当前用户的 crontab 编辑器，并删除相关行。
+
+安装ClamAV
+
+```
+sudo apt update && sudo apt upgrade
+sudo apt install clamav clamav-daemon
+clamscan --version
+
+sudo systemctl stop clamav-freshclam	//停止 ClamAV 服务
+sudo freshclam		//更新病毒数据库
+sudo systemctl enable clamav-freshclam --now	//启动 ClamAV 服务
+
+clamscan /path/to/file	//扫描特定文件
+clamscan -r /path/to/directory	//扫描特定目录
+clamscan /path/to/file --remove	//扫描并移除感染文件
+
+//备用命令
+# 扫描特定文件并记录结果
+clamscan /path/to/file -l /path/to/logfile
+# 扫描特定目录并记录结果
+clamscan -r /path/to/directory -l /path/to/logfile
+```
 
 # 其他
 
