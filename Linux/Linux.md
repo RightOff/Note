@@ -1423,7 +1423,9 @@ pip install lap
 pip install seaborn
 ```
 
-### 训练自己的数据集(暂不可用)
+### 训练自己的数据集
+
+不要训练ssd
 
 在 mmdetection/mmdet/datasets/__init__.py 中添加代码
 
@@ -1452,6 +1454,31 @@ python tools/train.py configs/faster_rcnn/faster-rcnn_r18_fpn_8xb8-amp-lsj-200e_
 ```
 
 python tools/train.py configs/faster_rcnn/myconfig.py  --work-dir workdir_hurricane/
+
+### 计算参数量
+
+```
+python tools/analysis_tools/get_flops.py work_dirs/faster-rcnn_r50_fpn_1x_coco/faster-rcnn_r50_fpn_1x_coco.py
+```
+
+### 输出每个类别AP
+
+在mmdet/evaluation/metrics/coco_metric.py中的classwise设为True。
+
+将/clh/mmdetection/configs/_base_/datasets/fire_detection.py中的format_only设为false。
+
+```
+python tools/test.py ./configs/faster_rcnn/faster-rcnn_r50_fpn_1x_coco.py work_dirs/faster-rcnn_r50_fpn_1x_coco/epoch_70.pth --out ./result/result.pkl
+```
+
+
+
+若改动后未生效可试试运行下面的命令重新编译代码使修改生效
+
+```python
+python setup.py install build
+```
+
 
 ## 问题解决
 
