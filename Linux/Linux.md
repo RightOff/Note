@@ -1455,6 +1455,12 @@ python tools/train.py configs/faster_rcnn/faster-rcnn_r18_fpn_8xb8-amp-lsj-200e_
 
 python tools/train.py configs/faster_rcnn/myconfig.py  --work-dir workdir_hurricane/
 
+最新训练命令：
+
+```
+python tools/train.py --config configs/faster_rcnn/faster-rcnn_r50_fpn_1x_coco.py
+```
+
 ### 计算参数量
 
 ```
