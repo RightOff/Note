@@ -1485,6 +1485,42 @@ python tools/test.py ./configs/faster_rcnn/faster-rcnn_r50_fpn_1x_coco.py work_d
 python setup.py install build
 ```
 
+### 输出P、R
+
+需改**tools/analysis_tools/confusion_matrix.py**文件，在底部main函数中添加代码
+
+```
+    # 自己添加，为了打印 Precision, Recall, F1, AP, AR
+    TP = np.diag(confusion_matrix)
+    FP = np.sum(confusion_matrix, axis=0) - TP
+    FN = np.sum(confusion_matrix, axis=1) - TP
+  
+    precision = TP / (TP + FP)
+    recall = TP / (TP + FN)
+    average_precision = np.mean(precision)
+    average_recall = np.mean(recall)
+    f1 = 2* (average_precision * average_recall) / (average_precision + average_recall)
+  
+  
+    print('\n AP:', average_precision)
+    print('AR:', average_recall)
+    print('F1:', f1)
+    print('Precision', precision)
+    print('Recall', recall)
+  
+    # print('TP:', TP)
+    # print('FP:', FP)
+    # print('FN', FN)
+
+    # 自己添加，为了打印 Precision, Recall, F1, AP, AR
+```
+
+首先执行输出每个类别AP的test.py，然后执行以下内容
+
+```
+python tools/analysis_tools/confusion_matrix.py work_dirs/faster-rcnn_r50_fpn_1x_coco/faster-rcnn_r50_fpn_1x_coco.py work_dirs/result/result.pkl work_dirs/result/
+```
+
 
 ## 问题解决
 
