@@ -1,4 +1,4 @@
-# Ubuntu20.04安装
+# tUbuntu20.04安装
 
 ## 报错合集
 
@@ -100,7 +100,6 @@ ls /usr/src | grep nvidia
 sudo apt-get install dkms
 sudo dkms install -m nvidia -v 535.113.01
 ```
-
 
 ### E: Conflicting values set for option Signed-By regarding source
 
@@ -1477,8 +1476,6 @@ python tools/analysis_tools/get_flops.py work_dirs/faster-rcnn_r50_fpn_1x_coco/f
 python tools/test.py ./configs/faster_rcnn/faster-rcnn_r50_fpn_1x_coco.py work_dirs/faster-rcnn_r50_fpn_1x_coco/epoch_70.pth --out ./result/result.pkl
 ```
 
-
-
 若改动后未生效可试试运行下面的命令重新编译代码使修改生效
 
 ```python
@@ -1520,7 +1517,6 @@ python setup.py install build
 ```
 python tools/analysis_tools/confusion_matrix.py work_dirs/faster-rcnn_r50_fpn_1x_coco/faster-rcnn_r50_fpn_1x_coco.py work_dirs/result/result.pkl work_dirs/result/
 ```
-
 
 ## 问题解决
 
