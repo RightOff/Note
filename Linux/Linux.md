@@ -113,6 +113,24 @@ sudo dkms install -m nvidia -v 535.113.01
 
 重新配置网桥 `sudo lxd init`
 
+### 无法ssh访问容器
+
+重装ssh，并配置开机自动启动
+
+### 无法xrdp访问容器
+
+```
+# 卸载 xrdp
+sudo apt-get remove --purge xrdp
+
+# 重装 xrdp
+sudo apt-get update
+sudo apt-get install xrdp
+# 将xrdp用户添加到组：
+sudo adduser xrdp ssl-cert  
+sudo systemctl restart xrdp
+```
+
 ## 安装步骤
 
 ### 系统文件制作
@@ -139,8 +157,9 @@ PasswordAuthentication yes
 
 ```
 service ssh start
+sudo ps -e | grep ssh	//查看是否启动成功
 #开机自启动(默认)
-systemctlenable ssh
+systemctl enable ssh
 ```
 
 ### 显卡驱动
@@ -1659,6 +1678,12 @@ source ~/.bashrc
 + ```
   find ./ -name filename //在指定路径查找文件
   ```
++ ```
+
+  ```
+
+
+
 
 ## Anaconda
 
@@ -1743,6 +1768,24 @@ clamscan /path/to/file --remove	//扫描并移除感染文件
 clamscan /path/to/file -l /path/to/logfile
 # 扫描特定目录并记录结果
 clamscan -r /path/to/directory -l /path/to/logfile
+```
+
+
+关闭自启动项
+
+```
+sudo systemctl list-unit-files	//列出所有自启动项
+sudo systemctl stop nginx.service	//停止已经开启的服务
+sudo systemctl disable nginx.service	//禁止开机启动
+```
+
+卸载ClamAV
+
+```
+sudo systemctl stop clamav-freshclam
+sudo systemctl stop clamav-daemon
+
+sudo apt-get remove --purge clamav clamav-daemon clamav-freshclam clamav-base clamav-docs clamav-testfiles
 ```
 
 # 其他
