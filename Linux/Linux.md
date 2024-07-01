@@ -74,19 +74,20 @@ sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 # 第三步可能会报错，不影响使用,上述命令执行完成之后，重启容器
 ```
 
-方法2：
+方法2：更换内核
 
 查看内核版本
 
 ```
 uname -r	//输出：5.15.0-107-generic
-sudo vim /etc/default/grub
+gedit /boot/grub/grub.cfg	//查看所需内核处于第几个，查出是第3个
+sudo vim /etc/default/grub	//切换内核，编辑GRUB_DEFAULT="1> 2"，第3个下标为2
 ```
 
 降低版本：GRUB_DEFAULT=0改为GRUB_DEFAULT = "Ubuntu，Linux 5.15.0-101-generic"
 
 ```
-sudo update-grub
+sudo update-grub	//更新开机引导文件
 reboot	//重启
 uname -r	//输出：5.15.0-105-generic
 ```
@@ -1682,9 +1683,6 @@ source ~/.bashrc
 
   ```
 
-
-
-
 ## Anaconda
 
 + conda create -n tensorflow python=3.8		//创建虚拟环境
@@ -1769,7 +1767,6 @@ clamscan /path/to/file -l /path/to/logfile
 # 扫描特定目录并记录结果
 clamscan -r /path/to/directory -l /path/to/logfile
 ```
-
 
 关闭自启动项
 
