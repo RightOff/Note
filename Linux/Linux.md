@@ -511,6 +511,43 @@ sudo apt-get install make
 
 ### 容器优化
 
+#### 限制CPU使用率
+
+创建 `set_cpu_limits.sh` 脚本文件：
+
+```
+#!/bin/bash
+
+# 获取所有容器的名称
+containers=$(lxc list -c n --format csv)
+
+# 设置每个容器的 CPU 使用限制
+for container in $containers; do
+  echo "Setting CPU allowance for container: $container"
+  lxc config set $container limits.cpu.allowance 90%
+done
+
+echo "CPU allowance set to 90% for all containers."
+```
+
+授予执行权限：
+
+```
+chmod +x set_cpu_limits.sh
+```
+
+运行脚本：
+
+```
+./set_cpu_limits.sh
+```
+
+检查单个容器是否配置成功：
+
+```
+lxc config show <container-name> | grep limits.cpu.allowance
+```
+
 #### 安装firefox
 
 ```
