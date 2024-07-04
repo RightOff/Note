@@ -670,7 +670,7 @@ PasswordAuthentication yes
 
 略
 
-### 其他
+## 其他
 
 ```
 # 查看容器剩余容量
@@ -684,7 +684,7 @@ lxc start --all //开启所有容器
 lxc restart --all //开启所有容器
 ```
 
-#### 可视化管理界面设置：
+### 可视化管理界面设置：
 
 云盘中的lxd39放到服务器/root/anaconda/envs/目录下
 
@@ -719,7 +719,7 @@ lxdui start
 nohup python3 run.py start > python.log3 2>&1 &
 ```
 
-#### LXD
+### LXD
 
 删除LXD
 
@@ -736,6 +736,65 @@ ssh连接容器
 
 ```
 ssh root@10.63.44.76 -p 9002	//从Windows端连接
+```
+
+### 在已分区的硬盘上创建、添加存储池
+
+#### 缩小文件系统，创建新的逻辑卷
+
+找到空闲大小较多的文件系统：
+
+```
+df -h
+```
+
+```
+//条目示例如下：
+
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/vgubuntu-root 812G   48G  724G   6% /
+```
+
+检查当前卷组的可用空间，注意vgubuntu、root与选择的某一文件系统的名字有关 `<name>`
+
+```
+sudo vgdisplay vgubuntu		//找到Alloc PE / Size和Free  PE / Size
+```
+
+缩小已分区磁盘的大小：
+
+```
+sudo e2fsck -f /dev/vgubuntu/root	//在缩小文件系统之前，必须先确保文件系统没有错误。
+
+//为了缩小文件系统的大小，需要在未挂载的情况下进行操作。如果是根文件系统，需要在救援模式下或使用Live CD/USB进行操作。
+
+sudo vgchange -ay	//激活卷组
+//确保文件系统没有错误并卸载文件系统
+sudo e2fsck -f /dev/vgubuntu/root
+sudo umount /dev/vgubuntu/root	//可能会显示：...... not mounted，可以忽略
+sudo resize2fs /dev/vgubuntu/root 100G	//缩小文件系统。大小可以指定，但不能小于原本的Alloc PE / Size
+sudo lvreduce -L 60G /dev/vgubuntu/root	//缩小逻辑卷,会收到警告：是否继续缩小逻辑卷，按提示输入y
+sudo e2fsck -f /dev/vgubuntu/root	//再次确认文件系统完整性
+sudo reboot	//从本地硬盘启动系统
+```
+
+创建新的逻辑卷：
+
+```
+sudo lvcreate -L 20G -n lxdpool vgubuntu	//lxdpool为自定义逻辑卷名字
+sudo zpool create lxdpool /dev/vgubuntu/lxdpool	//格式化逻辑卷为ZFS
+```
+
+#### 创建LXD存储池
+
+注意下方lxdpool为存储池名字（可自定义），vgubuntu为文件系统名字
+
+```
+lxc storage create <lxdpool> zfs source=lxdpool	//在LXD中注册新的存储池
+lxc launch <ubuntu:20.04> <mycontainer> -s lxdpool	//新的存储池上创建新容器，指定存储池lxdpool
+
+lxc move mycontainer --storage lxdpool	//迁移容器到另一个存储池
+
 ```
 
 # 环境配置
