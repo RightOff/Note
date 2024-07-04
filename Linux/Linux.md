@@ -738,6 +738,12 @@ ssh连接容器
 ssh root@10.63.44.76 -p 9002	//从Windows端连接
 ```
 
+查看LXD存储池及其文件系统的使用情况
+
+```
+sudo zfs list
+```
+
 ### 在已分区的硬盘上创建、添加存储池
 
 #### 缩小文件系统，创建新的逻辑卷
@@ -791,9 +797,11 @@ sudo zpool create lxdpool /dev/vgubuntu/lxdpool	//格式化逻辑卷为ZFS
 
 ```
 lxc storage create <lxdpool> zfs source=lxdpool	//在LXD中注册新的存储池
-lxc launch <ubuntu:20.04> <mycontainer> -s lxdpool	//新的存储池上创建新容器，指定存储池lxdpool
 
-lxc move mycontainer --storage lxdpool	//迁移容器到另一个存储池
+lxc storage list	//查询存储池列表
+lxc launch <ubuntu:20.04> <mycontainer> -s lxdpool	//在存储池lxdpool上创建新容器
+
+lxc move mycontainer --storage lxdpool	//迁移容器到存储池lxdpool
 
 ```
 
