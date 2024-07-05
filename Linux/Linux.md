@@ -120,6 +120,14 @@ sudo dkms install -m nvidia -v 535.113.01
 
 ### 无法xrdp访问容器
 
+可以先尝试：
+
+```
+poweroff -f
+```
+
+不行的话：
+
 ```
 # 卸载 xrdp
 sudo apt-get remove --purge xrdp
@@ -130,6 +138,14 @@ sudo apt-get install xrdp
 # 将xrdp用户添加到组：
 sudo adduser xrdp ssl-cert  
 sudo systemctl restart xrdp
+```
+
+### 更新或下载包时error: D-Bus is shutting down.
+
+Error: GDBus.Error:org.freedesktop.systemd1.ShuttingDown: Refusing activation, D-Bus is shutting down.
+
+```
+poweroff -f	//强制关机
 ```
 
 ## 安装步骤
