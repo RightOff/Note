@@ -1993,164 +1993,34 @@ git checkout v1.9.0
 
 ## WSL安装
 
-详见[超详细WSL搭建教程，包含图形化界面安装、解决内存占用大的问题_wsl图形化界面-CSDN博客](https://blog.csdn.net/cepengyuan/article/details/116006481)
+正常使用，自带显卡驱动
 
-安装的是microsoft中的Ubuntu 20.04.6
+[Win10下安装配置使用WSL2_win10 wsl2-CSDN博客](https://blog.csdn.net/RenLJ1895/article/details/122741040)
 
-### 注意事项
+### 固定IP
 
-#### 修改国内源时
-
-改国内源时采用以下方法
-
-先备份 `cp /etc/apt/sources.list /etc/apt/sources.list_copy`
-
-将以下代码拷贝到文件中去
+启动WSL2获取当前IP地址：
 
 ```
-# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse
-
-# 预发布软件源，不建议启用
-# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
+ifconfig
 ```
 
-#### 文件互访
-
-windows中输入 `\wsl$`直接进入
-
-### 驱动安装
-
-现在windows下安装Nvidia驱动
-
-在wsl中，输入以下命令安装依赖包即可。
+编辑Windows Hosts文件
 
 ```
-sudo apt install nvidia-cuda-toolkit
+C:\Windows\System32\drivers\etc\hosts
 ```
 
-在wsl中：
+以管理员身份添加以下内容：
 
 ```
-nvcc -V		//确定是否安装
-nvidia-smi	//查看显卡信息
+<WSL2_IP_ADDRESS>    mywsl.local	//例如：192.168.50.5    mywsl.local
 ```
 
-### 安装播放器
-
-```
-//安装smplayer视频播放器。
-sudo apt-get  install  smplayer
-```
+然后就可以通过 `mywsl.local` 访问WSL2 实例
 
 ## ubuntu20.04(Hyper V)
 
+无法使用显卡
+
 [在Hyper-V上安装Ubuntu20.04虚拟机—超级详细，小白简单上手 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/664484623)
-
-### 找不到包
-
-换源
-
-先备份 `/etc/apt/sources.list`文件，然后更改 `/etc/apt/sources.list`中的内容如下：
-
-```
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
-# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
-```
-
-如果没有编辑器vim，可以先在其他文件夹（如/home/`<usrname>`/download下完成配置文件，然后复制过去。
-
-```
-cp sources.list /etc/apt/sources.list
-```
-
-更新源：
-
-```
-sudo apt-get update
-sudo apt-get upgrade
-```
-
-### 安装gparted
-
-```
-sudo apt-get install gparted
-```
-
-### 安装Vim报错
-
-vim安装时报错，“Depends:vim-common (=2:7.4.1689-3ubuntu1.4) but 2:8.0.1453-1ubuntu1.1 is to be installed”
-
-```
-sudo apt-get purge vim-common
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install vim
-```
-
-### 安装ssh
-
-```
-apt-get install openssh-client=1:7.6p1-4	//根据报错要求的信息
-apt install openssh-server
-```
-
-```
-dpkg -l |grep ssh	//验证是否安装
-ps -e |grep ssh		//验证是否运行
-```
-
-### 配置GPU(未成功)
-
-先升级windows的pwsh
-
-```
-Get-VM	//获取虚拟机列表
-//注意下边需要带双引号
-Set-VM -VMName "Ubuntu 20.04 LTS" -GuestControlledCacheTypes $true -LowMemoryMappedIoSpace 1GB -HighMemoryMappedIoSpace 32GB
-Add-VMGpuPartitionAdapter -VMName "Ubuntu 20.04 LTS"
-```
-
-打开虚拟机并执行 `lspci` 命令，检查 GPU-PV 设备是否已经成功安装
-
-如果输出中包含 `b98b:00:00.0 3D controller: Microsoft Corporation Basic Render Driver`，则说明已正确安装设备
-
-进入 WSL 的终端，运行命令：
-
-```
-tar -cvf - /usr/lib/wsl | zstd -T0 > drivers.tzst
-```
-
-安装其他工具
-
-```
-sudo apt install zstd
-```
-
-拷贝到Hyper-V虚拟机根目录
-
-```
-unzstd drivers.tzst
-tar xvf drivers.tar
-```
-
-然后复制驱动到 `/lib`：
-
-```
-cp </usr/lib/wsl/lib>/* /usr/lib
-cp /usr/lib/wsl/lib/nvidia-smi /usr/bin	//N卡需要该步骤
-```
