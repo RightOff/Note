@@ -107,28 +107,28 @@ void buildProcessTree(){
     if (proc_dir == NULL) {
         // 打开目录失败，打印错误信息
         fprintf(stderr, "Error: Could not open directory %s: %s\n", proc_dir_path, strerror(errno));
-    
+  
     }
     struct dirent *pro_entry;   //存储文件夹中的条目
 
 
     while((pro_entry = readdir(proc_dir))!= NULL){
         //目录条目是数字的就是进程对应的文件夹，数字即进程号
-    
+  
         if(isdigit(pro_entry->d_name[0])){
-        
+      
             //打开包含当前进程信息的文件
             char proc_info_path[32];
             snprintf(proc_info_path,sizeof(proc_info_path),"%s/%.8s/stat",proc_dir_path, pro_entry->d_name);
             FILE *pro_stat = fopen(proc_info_path,"r");
             assert(pro_stat);
-        
+      
             //获取进程信息，加入进程列表
             struct process_node *process = (struct process_node*)malloc(sizeof(struct process_node));
             fscanf(pro_stat,"%d (%[^)]) %*c %d",&process->pid, process->name, &process->ppid);  //(%[^)])是如何匹配字符的
-        
+      
             insert_tree(process);
-        
+      
             // if(process->ppid != 0){
             //     struct process_node *parent = get_proc(process->ppid);
             //     if(parent == NULL)  
@@ -192,7 +192,7 @@ int get_index(int pid){
     while(process_hash_table[index] != NULL){
         if(process_hash_table[index]->pid == pid)  
             return index;   //找到了
-    
+  
         index = hash(index+1);
         if(index == start_index)    //防止死循环
             break;
@@ -225,5 +225,7 @@ void printProcessTree(struct process_node *head, int depth){
 }
 
 ```
+
+待解决的问题：考虑更贴合实际pstree的输出： 对于叶子节点 /proc/1234/task/ 文件夹下会存在叶子节点开启的子进程( 还会有个该进程的副本文件夹 )文件夹，里面stat文件记录pid和进程名称，且这种进程不会在/proc/ 下出现，pstree中这种进程输出样式为 `[{   ***  }}]`
 
 # L0
