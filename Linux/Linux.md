@@ -148,6 +148,15 @@ Error: GDBus.Error:org.freedesktop.systemd1.ShuttingDown: Refusing activation, D
 poweroff -f	//强制关机
 ```
 
+### 容器无法正常关机
+
+```
+ps aux | grep <container-name>	//查看容器中残留的进程
+sudo kill -9 <pid>	//kill掉残留线程，一般为：[lxc monitor] /var/snap/lxd/common/lxd/container。最好都kill掉
+```
+
+然后需要等半分钟再启动容器，不然会报监听端口冲突问题
+
 ## 安装步骤
 
 ### 系统文件制作
