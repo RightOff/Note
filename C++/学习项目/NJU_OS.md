@@ -116,19 +116,19 @@ void buildProcessTree(){
         //目录条目是数字的就是进程对应的文件夹，数字即进程号
   
         if(isdigit(pro_entry->d_name[0])){
-    
+  
             //打开包含当前进程信息的文件
             char proc_info_path[32];
             snprintf(proc_info_path,sizeof(proc_info_path),"%s/%.8s/stat",proc_dir_path, pro_entry->d_name);
             FILE *pro_stat = fopen(proc_info_path,"r");
             assert(pro_stat);
-    
+  
             //获取进程信息，加入进程列表
             struct process_node *process = (struct process_node*)malloc(sizeof(struct process_node));
             fscanf(pro_stat,"%d (%[^)]) %*c %d",&process->pid, process->name, &process->ppid);  //(%[^)])是如何匹配字符的
-    
+  
             insert_tree(process);
-    
+  
             // if(process->ppid != 0){
             //     struct process_node *parent = get_proc(process->ppid);
             //     if(parent == NULL)  
@@ -230,10 +230,11 @@ void printProcessTree(struct process_node *head, int depth){
 
 # L0
 
-
 # 课程
 
 ## 20-动态链接和加载
+
+ELF代码的跳转
 
 ### PLT（Procedure Linkage Table）和GOT（Global Offset Table）
 
@@ -254,3 +255,25 @@ GOT条目
 printf@got:
     .quad printf_actual_address  # 初始时会跳转回PLT继续执行，之后会直接跳转到函数位置
 ```
+
+数据的链接更为麻烦(略)？？
+
+`man ld.so`查看官方文档解释动态链接
+
+## 22-进程的实现
+
+1000个进程都加载一个100MB 的 libbloat.so，通过按需加载、共享内存页、内存映射文件机制实现。
+
+1000个进程都加载一个100GB的 libbloat.so，通过按需加载、共享内存页、内存映射文件、KMS机制实现。
+
+**KSM使用场景示例：**
+
+假设有以下三个进程P1, P2, P3，它们分别加载了一些相同和相似的数据：
+
+* **P1**加载了libbloat.so的一部分内容，同时生成了一些动态数据。
+* **P2**加载了相同的libbloat.so内容，同时生成了一些与P1相同的动态数据。
+* **P3**加载了libbloat.so的另一部分内容，并生成了与P1, P2相同的动态数据。
+
+在按需加载和内存映射文件的帮助下，P1, P2, P3可以共享libbloat.so的内容，但它们生成的动态数据在物理内存中是独立存在的。
+
+KSM通过扫描这些进程的内存页，发现它们生成的动态数据是相同的，然后将这些内存页合并为一个共享页。这进一步减少了物理内存的使用，提升了内存利用率。
