@@ -490,6 +490,47 @@ std::promise<int> pr;
 
 [C++ 11 多线程 (9) - std::async 教程及示例 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/633462603)
 
+### 使用示例-异步加载模型	
+
+```
+#include <iostream>
+#include <future>
+#include <onnxruntime_cxx_api.h>
+
+// 模型加载函数
+Ort::Session load_model(const std::string& model_path, Ort::Env& env) {
+    Ort::SessionOptions session_options;
+    session_options.SetIntraOpNumThreads(1);
+    session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+  
+    // 加载模型
+    Ort::Session session(env, model_path.c_str(), session_options);
+    return session;
+}
+
+int main() {
+    // 初始化 ONNX Runtime 环境
+    Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "ONNXRuntime");
+
+    // 异步加载模型
+    std::string model_path = "path/to/your/model.onnx";
+    std::future<Ort::Session> future_model = std::async(std::launch::async, load_model, model_path, std::ref(env));
+
+    // 你可以在这里进行其他操作，例如处理输入数据或进行其他初始化
+    std::cout << "Loading model asynchronously..." << std::endl;
+
+    // 获取加载的模型
+    Ort::Session session = future_model.get();
+    std::cout << "Model loaded successfully." << std::endl;
+
+    // 模型加载完成后可以继续进行其他操作，例如推理
+    // ...
+  
+    return 0;
+}
+
+```
+
 ## 其他
 
 ### \n\t
@@ -505,6 +546,117 @@ Unix系统下回车以下就是\n
 ### 有限状态机
 
 有限状态机（Finite State Machine）是一种理论模型，用于表示、处理具有一定数量状态的系统，用于描述一个系统在有限个特定状态之间的转换。在任何特定时间点，FSM只能处于这些状态中的一个。状态的变更通常由事件（event）或条件触发。回调函数作为状态的响应机制，对特定事件做出反应。
+
+线程池
+
+```
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <future>
+
+class ThreadPool {
+public:
+    // 构造函数，初始化线程池
+    ThreadPool(size_t threads);
+
+    // 析构函数，销毁线程池
+    ~ThreadPool();
+
+    // 添加新任务到任务队列
+    // F 是函数类型，Args 是参数类型
+    template<class F, class... Args>
+    auto enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
+
+private:
+    // 工作线程列表
+    std::vector<std::thread> workers;
+
+    // 任务队列
+    std::queue<std::function<void()>> tasks;
+
+    // 同步任务队列的互斥锁
+    std::mutex queue_mutex;
+
+    // 条件变量，用于通知工作线程有新任务到来
+    std::condition_variable condition;
+
+    // 线程池停止标志
+    bool stop;
+};
+
+// 构造函数，创建指定数量的工作线程
+ThreadPool::ThreadPool(size_t threads) : stop(false) {
+    for (size_t i = 0; i < threads; ++i) {
+        workers.emplace_back([this] {
+            for (;;) {
+                std::function<void()> task;
+
+                {
+                    std::unique_lock<std::mutex> lock(this->queue_mutex);
+
+                    // 等待直到有任务到来或线程池停止
+                    this->condition.wait(lock, [this] { return this->stop || !this->tasks.empty(); });
+
+                    if (this->stop && this->tasks.empty())
+                        return;
+
+                    // 获取任务队列中的一个任务
+                    task = std::move(this->tasks.front());
+                    this->tasks.pop();
+                }
+
+                // 执行任务
+                task();
+            }
+        });
+    }
+}
+
+// 析构函数，停止所有工作线程并清理资源
+ThreadPool::~ThreadPool() {
+    {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        stop = true;
+    }
+
+    // 通知所有工作线程停止
+    condition.notify_all();
+
+    // 等待所有工作线程完成
+    for (std::thread &worker : workers)
+        worker.join();
+}
+
+// 添加新任务到任务队列
+template<class F, class... Args>
+auto ThreadPool::enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type> { //？？
+    using return_type = typename std::result_of<F(Args...)>::type;
+
+    // 创建一个任务，打包为 std::packaged_task
+    auto task = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+
+    std::future<return_type> res = task->get_future();
+    {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+
+        if (stop)
+            throw std::runtime_error("enqueue on stopped ThreadPool");
+
+        // 将任务添加到任务队列中
+        tasks.emplace([task]() { (*task)(); });
+    }
+
+    // 通知一个工作线程有新任务到来
+    condition.notify_one();
+    return res;
+}
+```
+
 
 # 网络编程
 

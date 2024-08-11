@@ -72,6 +72,8 @@ sudo /sbin/modprobe nvidia-uvm
 D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
 sudo mknod -m 666 /dev/nvidia-uvm c $D 0
 # 第三步可能会报错，不影响使用,上述命令执行完成之后，重启容器
+
+lxc restart --all --force  # 重启所有容器
 ```
 
 方法2：更换内核
