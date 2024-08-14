@@ -2048,6 +2048,8 @@ C:\Windows\System32\drivers\etc\hosts
 
 然后就可以通过 `mywsl.local` 访问WSL2 实例
 
+
+
 ## ubuntu20.04(Hyper V)
 
 无法使用显卡
