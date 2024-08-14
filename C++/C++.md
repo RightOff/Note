@@ -490,7 +490,7 @@ std::promise<int> pr;
 
 [C++ 11 多线程 (9) - std::async 教程及示例 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/633462603)
 
-### 使用示例-异步加载模型	
+### 使用示例-异步加载模型
 
 ```
 #include <iostream>
@@ -656,7 +656,6 @@ auto ThreadPool::enqueue(F&& f, Args&&... args) -> std::future<typename std::res
     return res;
 }
 ```
-
 
 # 网络编程
 
@@ -1315,3 +1314,87 @@ webbench [option]... URL
 
 Speed：每分钟的处理2658472个请求；每秒的处理数据量：10545276字节
 Requests：处理的请求中成功1329236，失败0
+
+## 火焰图
+
+[使用火焰图(FlameGraph)分析程序性能_火焰图性能分析-CSDN博客](https://blog.csdn.net/code_peak/article/details/120813726)
+
+### perf
+
+#### 安装perf：
+
+```
+sudo apt install linux-tools-common
+sudo apt install linux-tools-generic linux-cloud-tools-generic
+```
+
+打 `perf指令`会提示安装其他包
+
+```
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install linux-tools-5.4.0-77-generic linux-cloud-tools-5.4.0-77-generic	//根据提示版本安装
+```
+
+#### perf采集数据
+
+```
+sudo perf record -F 99 -p 2512 -g -- sleep 30
+```
+
+* record：表示采集系统事件，没有采用 -e 执行采集事件，则默认采集 cycles（即 CPU clock 周期）。
+
++ -F 99：指定采样频率为 99Hz（每秒99次），如果 99次都返回同一个函数名, 那就说明 CPU 这一秒钟都在执行同一个函数，可能存在性能问题。
++ -p 2512：指定进程号，对某一个进程分析。
++ -g：表示记录调用栈。
++ sleep 30：表示持续 30 秒
+
+`perf record` 命令可以统计每个调用栈出现的百分比，然后从高到低排列。
+
+```
+sudo perf report -n --stdio
+```
+
+### 火焰图
+
+#### 下载火焰图
+
+```
+git clone https://github.com/brendangregg/FlameGraph.git
+```
+
+配置环境变量
+
+```
+vim ~/.bashrc
+export PATH=$PATH:<path>
+source ~/.bashrc
+```
+
+#### 生成火焰图
+
+```
+sudo perf script -i perf.data &> perf.unfold && stackcollapse-perf.pl perf.unfold &> perf.folded && flamegraph.pl perf.folded > perf.svg
+```
+
+以下为其中使用的三条命令的解释：
+
+对perf生成的perf.data 进行解析：
+
+```
+# 生成折叠后的调用栈
+sudo perf script -i perf.data &> perf.unfold
+```
+
+用 stackcollapse-perf.pl 将 perf.unfold 中的符号进行折叠：
+
+```
+# 生成火焰图
+stackcollapse-perf.pl perf.unfold &> perf.folded
+```
+
+最后生成svg图
+
+```
+flamegraph.pl perf.folded > perf.svg
+```
