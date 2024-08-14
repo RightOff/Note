@@ -1811,8 +1811,26 @@ source ~/.bashrc
   find ./ -name filename //在指定路径查找文件
   ```
 + ```
+  更改文件夹权限
+  sudo chmod 600 ××× （只有所有者有读和写的权限）
+  sudo chmod 644 ××× （所有者有读和写的权限，组用户只有读的权限）
+  sudo chmod 700 ××× （只有所有者有读和写以及执行的权限）
+  sudo chmod 666 ××× （每个人都有读和写的权限）
+  sudo chmod 777 ××× （每个人都有读和写以及执行的权限）
 
+  其中×××指文件名（也可以是文件夹名，不过要在chmod后加-ld）。
+
+  解释一下，其实整个命令的形式是
+  sudo chmod -（代表类型）×××（所有者）×××（组用户）×××（其他用户）
+
+  原文链接：https://blog.csdn.net/woshilaoli_CSDN/article/details/109093102
   ```
++ ```
+  修改文件夹拥有者
+  chown -R  hxls  gcn/	//-R：递归修改目录下所有的拥有者，hxls:拥有者名字，gcn/:更改目录
+  ```
+
+
 
 ## Anaconda
 
