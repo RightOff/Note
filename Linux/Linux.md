@@ -1830,8 +1830,6 @@ source ~/.bashrc
   chown -R  hxls  gcn/	//-R：递归修改目录下所有的拥有者，hxls:拥有者名字，gcn/:更改目录
   ```
 
-
-
 ## Anaconda
 
 + conda create -n tensorflow python=3.8		//创建虚拟环境
@@ -2048,10 +2046,55 @@ C:\Windows\System32\drivers\etc\hosts
 
 然后就可以通过 `mywsl.local` 访问WSL2 实例
 
-
-
 ## ubuntu20.04(Hyper V)
 
 无法使用显卡
 
 [在Hyper-V上安装Ubuntu20.04虚拟机—超级详细，小白简单上手 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/664484623)
+
+## 设置代理
+
+在 CLI 上设置系统范围代理设置
+
+我们将在`/etc/profile.d/proxy.sh`下添加一个shell脚本文件。这将确保设置适用于所有登录的用户。
+
+```undefined
+sudo vim /etc/profile.d/proxy.sh
+```
+
+填充您的代理值。
+
+```powershell
+# set proxy config via profie.d - should apply for all users
+# 
+export http_proxy="http://10.10.1.10:8080/"
+export https_proxy="http://10.10.1.10:8080/"
+export ftp_proxy="http://10.10.1.10:8080/"
+export no_proxy="127.0.0.1,localhost"
+
+# For curl
+export HTTP_PROXY="http://10.10.1.10:8080/"
+export HTTPS_PROXY="http://10.10.1.10:8080/"
+export FTP_PROXY="http://10.10.1.10:8080/"
+export NO_PROXY="127.0.0.1,localhost"
+```
+
+将 ***10.10.1.10:8080*** 替换为您的代理服务器 IP 地址和代理服务侦听端口。将要从代理中排除的其他 IP 添加到 NO_PROXY 和 no_proxy 环境变量。
+
+使其可执行。
+
+```undefined
+sudo chmod +x  /etc/profile.d/proxy.sh
+```
+
+获取文件以开始使用代理设置，或者注销并重新登录。
+
+```undefined
+source /etc/profile.d/proxy.sh
+```
+
+确认 ：
+
+```powershell
+$ env | grep -i proxy
+```
