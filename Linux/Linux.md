@@ -2046,6 +2046,128 @@ C:\Windows\System32\drivers\etc\hosts
 
 然后就可以通过 `mywsl.local` 访问WSL2 实例
 
+
+### 安装xrdp（可视化界面并远程）
+
+#### 安装步骤
+
+```
+// 桌面框架二选一，为linux配置桌面图形
+// （1）xfce4基础桌面框架
+sudo apt-get install xfce4
+// （2）xfce4完整版
+sudo apt-get install xubuntu-desktop
+
+// 防止xfce4桌面默认终端打不开
+sudo apt-get install xfce4-terminal
+echo xfce4-session>.xsession
+
+// 使用xrdp软件来远程
+sudo apt-get install vnc4server
+sudo apt-get install xrdp
+
+// 防止xrdp登录后黑屏或者息屏后黑屏
+sudo vim /etc/xrdp/startwm.sh
+//添加以下内容
+unset DBUS_SESSION_BUS_ADDRESS
+unset XDG_RUNTIME_DIR
+. $HOME/.profile
+```
+
+同文章内给出的问题解决方法（未验证）：
+
+```
+// 后续如果每黑屏一次，就执行以下命令，每次window开机的时候都需要执行
+sudo service xrdp restart
+// 查看xrdp状态，正常显示isrunning
+sudo service xrdp status
+
+// 如果输入账号和密码直接闪退，则卸载重新安装xrdp并重启
+sudo apt-get purge vnc4server
+sudo apt-get purge xrdp
+sudo apt-get install vnc4server
+sudo apt-get install xrdp
+
+tips：远程桌面的时候，最好reboot机器，不要进入桌面，防止屏幕被占用
+```
+
+#### 卸载xfce桌面环境
+
+1.卸载xfce桌面
+
++ 卸载xfce 4
+  ```
+  sudo apt-get remove xfce4
+  ```
++ 卸载相关软件
+  ```
+  sudo apt-get remove xfce4* 
+  ```
++ 自动卸载不必要的软件
+  ```
+  sudo apt-get  autoremove
+  ```
++ 系统清理
+  ```
+  sudo apt-get  clean
+  ```
+
+2.卸载xubuntu-desktop
+
++ 卸载xubuntu
+  ```
+  sudo apt-get remove xubuntu*
+  ```
++ 卸载不必要的软件
+  ```
+  sudo apt-get  autoremove
+  ```
+
+> 注意事项：xubutnu附带的应用也会删除，就是xfce或xubuntu下常用的软件也会被卸载。
+
+#### 桌面闪退问题
+
+闪退问题可能是由于Xrdp启动时找不到合适的窗口管理器。在WSL环境下，你可以尝试使用 `xfce4`作为窗口管理器。首先，安装 `xfce4`
+
+```
+sudo apt install xubuntu-desktop xfce4-terminal
+```
+
+编辑 `/etc/xrdp/startwm.sh`文件，内容修改为
+
+```
+#!/bin/sh
+unset DBUS_SESSION_BUS_ADDRESS
+unset XDG_RUNTIME_DIR
+export XDG_CACHE_HOME=/run/user/1000/cache
+export XDG_CONFIG_HOME=/run/user/1000/config
+export PATH=$PATH:/usr/bin
+/etc/X11/Xsession
+xfce4-session &
+```
+
+保存文件，重启xrdp服务
+
+```
+sudo systemctl restart xrdp
+```
+
+#### 桌面黑屏问题（未验证）
+
+黑屏问题可能是由于Xrdp无法正确启动图形界面。这通常是由于图形驱动问题导致的。在WSL环境下，你可以尝试使用 `mesa`作为图形驱动。首先，安装 `mesa`：
+
+```
+sudo apt install libgl1-mesa-glx
+```
+
+然后，确保Xrdp的启动脚本中包含了正确的图形驱动路径。编辑 `/etc/xrdp/startwm.sh`文件，确保其中包含以下内容：
+
+```
+export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/mesa/
+```
+
+
+
 ## ubuntu20.04(Hyper V)
 
 无法使用显卡
@@ -2056,7 +2178,7 @@ C:\Windows\System32\drivers\etc\hosts
 
 在 CLI 上设置系统范围代理设置
 
-我们将在`/etc/profile.d/proxy.sh`下添加一个shell脚本文件。这将确保设置适用于所有登录的用户。
+我们将在 `/etc/profile.d/proxy.sh`下添加一个shell脚本文件。这将确保设置适用于所有登录的用户。
 
 ```undefined
 sudo vim /etc/profile.d/proxy.sh
