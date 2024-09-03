@@ -88,14 +88,6 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v Fli
 
 3.将播放策略一栏的“默认”调整为“AV1”或“AVC”
 
->>>>>>> 6fdb633af7199a348cd3ccea0b8c5dc06813c7a2
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 ## 右下角显示未激活水印
 
 新建记事本remove.bat，输入以下代码
@@ -108,6 +100,15 @@ exit
 ```
 
 保存后以管理员身份打开，然后重启电脑。
+
+## 微软商店无法下载
+
+清除缓存
+
+```
+wsreset.exe
+```
+
 
 # Git
 

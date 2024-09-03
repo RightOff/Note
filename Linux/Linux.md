@@ -2024,28 +2024,14 @@ git checkout v1.9.0
 
 [Win10下安装配置使用WSL2_win10 wsl2-CSDN博客](https://blog.csdn.net/RenLJ1895/article/details/122741040)
 
-### 固定IP
-
-启动WSL2获取当前IP地址：
+卸载：
 
 ```
-ifconfig
+wsl --list	//查看子系统版本
+wsl --unregister Ubuntu-20.04
 ```
 
-编辑Windows Hosts文件
-
-```
-C:\Windows\System32\drivers\etc\hosts
-```
-
-以管理员身份添加以下内容：
-
-```
-<WSL2_IP_ADDRESS>    mywsl.local	//例如：192.168.50.5    mywsl.local
-```
-
-然后就可以通过 `mywsl.local` 访问WSL2 实例
-
+应用和功能里边删除：Windows Sybsystem for Linux、ubuntu 
 
 ### 安装xrdp（可视化界面并远程）
 
@@ -2165,8 +2151,6 @@ sudo apt install libgl1-mesa-glx
 ```
 export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/mesa/
 ```
-
-
 
 ## ubuntu20.04(Hyper V)
 
