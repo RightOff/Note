@@ -109,7 +109,6 @@ exit
 wsreset.exe
 ```
 
-
 # Git
 
 ## Git Bash安装
@@ -180,6 +179,17 @@ Your public key has been saved in /c/Users/…/.ssh/id_rsa.pub
 
 ```
 Hi “用户名”! You’ve successfully authenticated, but GitHub does not provide shell access.
+```
+
+如果连接超时，则需要更改端口号， `vim ~/.ssh/config` 写入以下内容：
+
+```
+Host github.com
+User xxxxqq.com
+Hostname ssh.github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+Port 443
 ```
 
 ### 6.本地端仓库配置
