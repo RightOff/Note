@@ -2020,25 +2020,47 @@ git checkout v1.9.0
 
 ## WSL安装
 
+### 安装wsl
+
 正常使用，自带显卡驱动
 
 [Win10下安装配置使用WSL2_win10 wsl2-CSDN博客](https://blog.csdn.net/RenLJ1895/article/details/122741040)
 
-卸载：
+C:\Users\305-e3\.wslconfig内容：
+
+```
+[wsl2]
+memory=4GB
+swap=0
+# localhostForwarding=true
+
+[experimental]
+autoMemoryReclaim=gradual # 开启自动回收内存，可在 gradual, dropcache, disabled 之间选择
+networkingMode=mirrored # 开启镜像网络
+dnsTunneling=true # 开启 DNS Tunneling
+firewall=true # 开启 Windows 防火墙
+autoProxy=true # 开启自动同步代理
+sparseVhd=true # 开启自动释放 WSL2 虚拟硬盘空间
+
+
+```
+
+### 卸载wsl
 
 ```
 wsl --list	//查看子系统版本
 wsl --unregister Ubuntu-20.04
 ```
 
-应用和功能里边删除：Windows Sybsystem for Linux、ubuntu 
+应用和功能里边删除：Windows Sybsystem for Linux、ubuntu
 
 ### 安装xrdp（可视化界面并远程）
 
 #### 安装步骤
 
+桌面框架二选一，为linux配置桌面图形：
+
 ```
-// 桌面框架二选一，为linux配置桌面图形
 // （1）xfce4基础桌面框架
 sudo apt-get install xfce4
 // （2）xfce4完整版
@@ -2047,17 +2069,44 @@ sudo apt-get install xubuntu-desktop
 // 防止xfce4桌面默认终端打不开
 sudo apt-get install xfce4-terminal
 echo xfce4-session>.xsession
+```
 
-// 使用xrdp软件来远程
+在 `/etc/apt/sources.list`中加一行：
+
+```
+ deb http://archive.ubuntu.com/ubuntu/ bionic universe
+```
+
+安装缺少的Public key：
+
+```
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+apt-get update
+```
+
+使用xrdp软件来远程：
+
+```
 sudo apt-get install vnc4server
 sudo apt-get install xrdp
+```
 
-// 防止xrdp登录后黑屏或者息屏后黑屏
+防止xrdp登录后黑屏或者息屏后黑屏：
+
+```
 sudo vim /etc/xrdp/startwm.sh
 //添加以下内容
 unset DBUS_SESSION_BUS_ADDRESS
 unset XDG_RUNTIME_DIR
 . $HOME/.profile
+```
+
+修改监听的端口：`/etc/xrdp/xrdp.ini`
+
+重启xrdp：
+
+```
+sudo service xrdp restart
 ```
 
 同文章内给出的问题解决方法（未验证）：
@@ -2095,7 +2144,7 @@ tips：远程桌面的时候，最好reboot机器，不要进入桌面，防止�
   ```
 + 系统清理
   ```
-  sudo apt-get  clean
+  sudo apt-get clean
   ```
 
 2.卸载xubuntu-desktop
@@ -2150,6 +2199,15 @@ sudo apt install libgl1-mesa-glx
 
 ```
 export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/mesa/
+```
+
+#### 依赖问题
+
+安装gcc时有依赖问题，用aptitude安装
+
+```
+apt install aptitude
+aptitude install gcc	//第一次输入n，之后输入y
 ```
 
 ## ubuntu20.04(Hyper V)
