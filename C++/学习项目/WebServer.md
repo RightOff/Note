@@ -993,10 +993,12 @@ int fflush(FILE *stream);
 
 用WebBench测试，在根目录/下创建文档 index.html ，其内容为Hello World!
 
+可以直接/hello
+
 测试命令为：
 
 ```
-webbench -c 1000 -t 60 --get http://127.0.0.1:80/index.html/
+./webbench -c 1000 -t 60 --get http://127.0.0.1:80/hello/
 ```
 
 #### 短连接
@@ -1007,9 +1009,9 @@ webbench -c 1000 -t 60 --get http://127.0.0.1:80/index.html/
 
 1K个客户端，运行60秒，webbench测试结果：
 
-![1726022640063](image/WebServer/1726022640063.png)
+![1726394934965](image/WebServer/1726394934965.png)
 
-QPS: 2357144/60 = 39285
+QPS: 2701277 / 60 = 45021
 
 
 1W个客户端，运行60秒，webbench测试结果：
@@ -1026,8 +1028,8 @@ QPS: 1976535/60 = 32942
 
 1K个客户端，运行60秒，webbench测试结果：
 
-![1726030697541](image/WebServer/1726030697541.png)
+![1726393804612](image/WebServer/1726393804612.png)
 
-QPS: 5534810 / 60 = 92246
+QPS: 6126145 / 60 = 102102
 
 1W个客户端，运行60秒，webbench测试结果：

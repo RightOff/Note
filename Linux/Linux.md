@@ -159,6 +159,14 @@ sudo kill -9 <pid>	//kill掉残留线程，一般为：[lxc monitor] /var/snap/l
 
 然后需要等半分钟再启动容器，不然会报监听端口冲突问题
 
+### 内存占用过高
+
+占用79G/128G，查看进程发现很多 `/usr/bin/gnome-shell`，可能是图形界面的问题，重启图形界面：
+
+```
+systemctl restart gdm.service
+```
+
 ## 安装步骤
 
 ### 系统文件制作
