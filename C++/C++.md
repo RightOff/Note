@@ -1398,3 +1398,37 @@ stackcollapse-perf.pl perf.unfold &> perf.folded
 ```
 flamegraph.pl perf.folded > perf.svg
 ```
+
+## GDB调试
+
+### 调试不带调试信息的可执行程序
+
+#### RelWithDebInfo编译
+
+编译为可执行文件时加编译选项 `-O2/3 -g -DNDEBUG`，示例如下：
+
+```
+g++ array_test.cpp -o array_test -O2 -g -DNDEBUG
+```
+
+将调试信息单独剥离到一个文件中：
+
+```
+objcopy --only-keep-debug ./array_test array_test.debug
+```
+
+将可执行程序剥离到一个文件中：
+
+```
+strip strip ./array_test -o array_test.release
+```
+
+此时 array_test.release 即为不带调试信息的可执行文件。
+
+如果先要对 array_test.release 进行调试，需将其与之前剥离出来的debug文件关联：
+
+```
+objcopy --add-gnu-debuglink=array_test.debug array_test.release
+```
+
+此时便可以用gdb进行调试
