@@ -1201,6 +1201,13 @@ device为使用的设备，使用cpu练就写cpu，使用显卡大多数都是0�
 
 修改 `ultralytics/engine/trainer.py`文件下的 `self.device = torch.device(0)`
 
+或者：
+
+```
+# CUDA_VISIBLE_DEVICES=1 环境变量指定可用的GPU序号，--nproc_per_node=1表示只用一个GPU
+CUDA_VISIBLE_DEVICES=1 python train_gpu1.py --nproc_per_node=1
+```
+
 ## yolo训练网络可视化工具
 
 ```
